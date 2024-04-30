@@ -1,8 +1,8 @@
 ﻿enum MonsterType
 {
-    Minion,
-    VoidSwarm,
-    SiegeMinion
+    Minion,     // 미니언
+    VoidSwarm,  // 공허충
+    SiegeMinion // 대포미니언
 }
 
 public partial class GameManager
@@ -11,15 +11,19 @@ public partial class GameManager
 
     Random random = new Random();
     int randomNumber;
+
+    // 던전 입장 전 player 체력
+    // FinalBattleResultScene 에서 활용될 예정
     int initialPlayerHp;
 
+    // 전투 전 몬스터를 랜덤하게 생성하는 씬
     private void BattleScene()
     {
         initialPlayerHp = player.Hp;
 
         monsters = new List<Monster>();
 
-        randomNumber = random.Next(1, 5);
+        randomNumber = random.Next(1, 5);   // random.Next(1, 5) = 1 ~ 4
         for (int i = 0; i < randomNumber; i++)
         {
             // Enum.GetNames(typeof(MonsterType)).Length = 3
@@ -43,6 +47,8 @@ public partial class GameManager
         BattleStartScene();
     }
 
+    // 플레이어의 행동을 선택하는 씬
+    // 일단은 기본공격만 구현
     private void BattleStartScene()
     {
         Console.Clear();
@@ -72,6 +78,7 @@ public partial class GameManager
         }
     }
 
+    // 플레이어가 공격할 대상을 선택하는 씬
     private void MyBattlePhaseScene(string? prompt = null)
     {
         if (prompt != null)
@@ -117,12 +124,14 @@ public partial class GameManager
                     int damage = player.Atk + bonusAtk;
                     int damageMargin = (int)Math.Ceiling(damage * 0.1f);
                     
+                    // 공격 대상 및 데미지를 넘겨준다
                     MyBattleResultScene(keyInput - 1, random.Next(damage - damageMargin, damage + damageMargin + 1));
                 }
                 break;
         }
     }
 
+    // 플레이어의 전투 결과를 보여주는 씬
     private void MyBattleResultScene(int monsterIdx, int damage)
     {
         Monster target = monsters[monsterIdx];
@@ -146,10 +155,14 @@ public partial class GameManager
             case 0:
                 if(monsters.All(monster => monster.IsDead))
                 {
+                    // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
                     FinalBattleResultScene(true);
                 }
                 else
                 {
+                    // 플레이어 턴이 끝났음
+                    // 적 턴 시작
+                    // Monster 리스트 안의 0번 monster부터 공격 가능한지 ( 살아있는지 ) 탐색
                     EnemyBattlePhaseScene(0);
                 }
                 break;
@@ -158,10 +171,13 @@ public partial class GameManager
         }
     }
 
+    // Monster 리스트 안의 모든 monster 공격 가능한지 탐색
     private void EnemyBattlePhaseScene(int monsterIdx)
     {
         if(monsterIdx >= monsters.Count)
         {
+            // 모든 몬스터가 공격을 마침
+            // 다시 플레이어 행동 선택
             BattleStartScene();
         }
         else
@@ -170,10 +186,13 @@ public partial class GameManager
 
             if(target.IsDead)
             {
+                // 해당 index 몬스터가 이미 죽음
+                // 다음 순서의 몬스터 공격 가능한지 탐색
                 EnemyBattlePhaseScene(monsterIdx + 1);
             }
             else
             {
+                // 해당 index 몬스터 공격 진행
                 EnemyBattleResultScene(monsterIdx);
             }
         }
@@ -202,10 +221,12 @@ public partial class GameManager
             case 0:
                 if (player.IsDead)
                 {
+                    // 플레이어가 죽었으면 최종 결과 씬으로 이동
                     FinalBattleResultScene(false);
                 }
                 else
                 {
+                    // 다음 순서의 몬스터 공격 가능한지 탐색
                     EnemyBattlePhaseScene(monsterIdx + 1);
                 }
                 break;
@@ -224,6 +245,7 @@ public partial class GameManager
         Console.WriteLine("");
         if(isPlayerWin)
         {
+            // 플레이어 승리
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Victory");
             Console.ResetColor();
@@ -232,6 +254,7 @@ public partial class GameManager
         }
         else
         {
+            // 플레이어 패배
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("You Lose");
             Console.ResetColor();

@@ -15,6 +15,7 @@
         IsDead = isDead;
     }
 
+    // BattleScene에서 monster 정보 출력할 때 사용
     public void PrintMonsterDescription(bool withNumber = false, int idx = 0)
     {
         if (IsDead)
