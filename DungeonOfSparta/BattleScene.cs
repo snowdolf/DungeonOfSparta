@@ -132,10 +132,7 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        Console.WriteLine($"{player.Name} 의 공격!");
-        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), "", false);
-        Console.Write($" {target.Name} 을(를) 맞췄습니다. ");
-        ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
+        player.PrintAttackDescription(target, damage);
 
         Console.WriteLine("");
         target.PrintMonsterChangeDescription(target.Hp, damage);
@@ -191,9 +188,7 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! - Enemy ■");
 
         Console.WriteLine("");
-        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), $" {target.Name} 의 공격!");
-        Console.Write($"{player.Name} 을(를) 맞췄습니다. ");
-        ConsoleUtility.PrintTextHighlights("[데미지 : ", target.Atk.ToString(), "]");
+        target.PrintAttackDescription(player);
 
         Console.WriteLine("");
         player.PrintPlayerChangeDescription(player.Hp, target.Atk);

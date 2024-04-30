@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-internal class Player
+﻿internal class Player
 {
     public string Name { get; }
     public string Job { get; }
@@ -54,5 +52,14 @@ internal class Player
         {
             ConsoleUtility.PrintTextHighlights("", Hp.ToString());
         }
+    }
+
+    // BattleScene에서 player가 monster를 공격할 때 사용
+    public void PrintAttackDescription(Monster monster, int damage)
+    {
+        Console.WriteLine($"{Name} 의 공격!");
+        ConsoleUtility.PrintTextHighlights("Lv.", monster.Level.ToString(), "", false);
+        Console.Write($" {monster.Name} 을(를) 맞췄습니다. ");
+        ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
     }
 }
