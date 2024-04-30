@@ -16,8 +16,6 @@ public partial class GameManager
     {
         monsters = new List<Monster>();
 
-        random = new Random();
-
         randomNumber = random.Next(1, 5);
         for (int i = 0; i < randomNumber; i++)
         {
@@ -48,6 +46,7 @@ public partial class GameManager
 
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
+        Console.WriteLine("");
         for (int i = 0; i < monsters.Count; i++)
         {
             monsters[i].PrintMonsterDescription();
@@ -66,27 +65,93 @@ public partial class GameManager
         switch (ConsoleUtility.PromptSceneChoice(1, 1))
         {
             case 1:
-                MyBattleScene();
+                MyBattlePhaseScene();
                 break;
             default:
                 break;
         }
     }
 
-    private void MyBattleScene()
+    private void MyBattlePhaseScene(string? prompt = null)
+    {
+        if (prompt != null)
+        {
+            // 1초간 메시지를 띄운 다음에 다시 진행
+            Console.Clear();
+            ConsoleUtility.ShowTitle(prompt);
+            Thread.Sleep(300);
+        }
+
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! ■");
+
+        Console.WriteLine("");
+        for (int i = 0; i < monsters.Count; i++)
+        {
+            monsters[i].PrintMonsterDescription(true, i + 1);
+        }
+
+        Console.WriteLine("");
+        Console.WriteLine("[내정보]");
+        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name} ( {player.Job} )");
+        ConsoleUtility.PrintTextHighlights("HP ", player.Hp.ToString(), "", false);
+        ConsoleUtility.PrintTextHighlights("/", "100");
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 취소");
+        Console.WriteLine("");
+
+        int keyInput = ConsoleUtility.PromptSceneChoice(0, monsters.Count);
+
+        switch (keyInput)
+        {
+            case 0:
+                BattleStartScene();
+                break;
+            default:
+                if (monsters[keyInput - 1].IsDead)
+                {
+                    MyBattlePhaseScene("이미 죽은 몬스터입니다.");
+                }
+                else
+                {
+                    int bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+                    int damage = player.Atk + bonusAtk;
+                    int damageMargin = (int)Math.Ceiling(damage * 0.1f);
+                    
+                    MyBattleResultScene(keyInput - 1, random.Next(damage - damageMargin, damage + damageMargin + 1));
+                }
+                break;
+        }
+    }
+
+    private void MyBattleResultScene(int monsterIdx, int damage)
     {
         Console.Clear();
 
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        Console.WriteLine("0. 취소");
+        Console.WriteLine($"{player.Name} 의 공격!");
+        ConsoleUtility.PrintTextHighlights("Lv.", monsters[monsterIdx].Level.ToString(), "", false);
+        Console.WriteLine($" {monsters[monsterIdx].Name} 을(를) 맞췄습니다. ");
+        ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
+
+        Console.WriteLine("");
+        ConsoleUtility.PrintTextHighlights("Lv.", monsters[monsterIdx].Level.ToString(), $" {monsters[monsterIdx].Name}");
+        ConsoleUtility.PrintTextHighlights("HP ", monsters[monsterIdx].Hp.ToString(), " ", false);
+        monsters[monsterIdx].Hp -= damage;
+        ConsoleUtility.PrintTextHighlights("-> ", monsters[monsterIdx].Hp.ToString(), "");
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 다음");
         Console.WriteLine("");
 
         switch (ConsoleUtility.PromptSceneChoice(0, 0))
         {
             case 0:
-                MainScene();
+                MyBattlePhaseScene();
                 break;
             default:
                 break;

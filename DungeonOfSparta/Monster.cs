@@ -4,7 +4,7 @@ internal class Monster
 {
     public string Name { get; }
     public int Level { get; }
-    public int Hp { get; }
+    public int Hp { get; set; }
     public int Atk { get; }
     public bool IsDead { get; private set; }
 
