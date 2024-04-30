@@ -128,21 +128,27 @@ public partial class GameManager
 
     private void MyBattleResultScene(int monsterIdx, int damage)
     {
+        Monster target = monsters[monsterIdx];
+
         Console.Clear();
 
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
         Console.WriteLine($"{player.Name} 의 공격!");
-        ConsoleUtility.PrintTextHighlights("Lv.", monsters[monsterIdx].Level.ToString(), "", false);
-        Console.WriteLine($" {monsters[monsterIdx].Name} 을(를) 맞췄습니다. ");
+        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), "", false);
+        Console.WriteLine($" {target.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
 
         Console.WriteLine("");
-        ConsoleUtility.PrintTextHighlights("Lv.", monsters[monsterIdx].Level.ToString(), $" {monsters[monsterIdx].Name}");
-        ConsoleUtility.PrintTextHighlights("HP ", monsters[monsterIdx].Hp.ToString(), " ", false);
-        monsters[monsterIdx].Hp -= damage;
-        ConsoleUtility.PrintTextHighlights("-> ", monsters[monsterIdx].Hp.ToString(), "");
+        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), $" {target.Name}");
+        ConsoleUtility.PrintTextHighlights("HP ", target.Hp.ToString(), " ", false);
+        target.Hp -= damage;
+        if (target.Hp <= 0)
+        {
+            target.IsDead = true;
+        }
+        ConsoleUtility.PrintTextHighlights("-> ", target.IsDead ? "Dead" : target.Hp.ToString(), "");
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");
