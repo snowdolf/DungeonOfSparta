@@ -167,8 +167,7 @@ public partial class GameManager
         switch (ConsoleUtility.PromptSceneChoice(0, 0))
         {
             case 0:
-                int deadMonsterCount = monsters.Select(monster => monster.IsDead ? 1 : 0).Sum();
-                if(deadMonsterCount == monsters.Count)
+                if(monsters.All(monster => monster.IsDead))
                 {
                     FinalBattleResultScene(true);
                 }
