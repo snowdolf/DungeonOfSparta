@@ -11,9 +11,12 @@ public partial class GameManager
 
     Random random = new Random();
     int randomNumber;
+    int initialPlayerHp;
 
     private void BattleScene()
     {
+        initialPlayerHp = player.Hp;
+
         monsters = new List<Monster>();
 
         randomNumber = random.Next(1, 5);
@@ -157,7 +160,57 @@ public partial class GameManager
         switch (ConsoleUtility.PromptSceneChoice(0, 0))
         {
             case 0:
-                MyBattlePhaseScene();
+                int deadMonsterCount = monsters.Select(monster => monster.IsDead ? 1 : 0).Sum();
+                if(deadMonsterCount == monsters.Count)
+                {
+                    FinalBattleResultScene(true);
+                }
+                else
+                {
+                    MyBattlePhaseScene();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void FinalBattleResultScene(bool isPlayerWin)
+    {
+
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! - Result ■");
+
+        Console.WriteLine("");
+        if(isPlayerWin)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Victory");
+            Console.ResetColor();
+            Console.WriteLine("");
+            ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("You Lose");
+            Console.ResetColor();
+        }
+
+        Console.WriteLine("");
+        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name}");
+        ConsoleUtility.PrintTextHighlights("HP ", initialPlayerHp.ToString(), " ", false);
+        ConsoleUtility.PrintTextHighlights("-> ", player.Hp.ToString());
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 다음");
+        Console.WriteLine("");
+
+        switch (ConsoleUtility.PromptSceneChoice(0, 0))
+        {
+            case 0:
+                MainScene();
                 break;
             default:
                 break;
