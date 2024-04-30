@@ -42,4 +42,26 @@ internal class Monster
             ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString());
         }
     }
+
+    // BattleScene에서 monster 정보 변화를 출력할 때 사용
+    public void PrintMonsterChangeDescription(int initialHp, int damage = 0)
+    {
+        Hp -= damage;
+        if (Hp <= 0)
+        {
+            IsDead = true;
+            Hp = 0;
+        }
+
+        ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name}");
+        ConsoleUtility.PrintTextHighlights("HP ", initialHp.ToString(), " -> ", false);
+        if (IsDead)
+        {
+            Console.WriteLine("Dead");
+        }
+        else
+        {
+            ConsoleUtility.PrintTextHighlights("", Hp.ToString());
+        }
+    }
 }

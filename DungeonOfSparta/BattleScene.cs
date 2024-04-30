@@ -56,10 +56,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        Console.WriteLine("[내정보]");
-        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name} ( {player.Job} )");
-        ConsoleUtility.PrintTextHighlights("HP ", player.Hp.ToString(), "", false);
-        ConsoleUtility.PrintTextHighlights("/", "100");
+        player.PrintPlayerDescription();
 
         Console.WriteLine("");
         Console.WriteLine("1. 공격");
@@ -96,10 +93,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        Console.WriteLine("[내정보]");
-        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name} ( {player.Job} )");
-        ConsoleUtility.PrintTextHighlights("HP ", player.Hp.ToString(), "", false);
-        ConsoleUtility.PrintTextHighlights("/", "100");
+        player.PrintPlayerDescription();
 
         Console.WriteLine("");
         Console.WriteLine("0. 취소");
@@ -144,21 +138,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
 
         Console.WriteLine("");
-        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), $" {target.Name}");
-        ConsoleUtility.PrintTextHighlights("HP ", target.Hp.ToString(), " ", false);
-        target.Hp -= damage;
-        if (target.Hp <= 0)
-        {
-            target.IsDead = true;
-        }
-        if(target.IsDead)
-        {
-            Console.WriteLine("-> Dead");
-        }
-        else
-        {
-            ConsoleUtility.PrintTextHighlights("-> ", target.Hp.ToString(), "");
-        }
+        target.PrintMonsterChangeDescription(target.Hp, damage);
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");
@@ -216,22 +196,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("[데미지 : ", target.Atk.ToString(), "]");
 
         Console.WriteLine("");
-        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name}");
-        ConsoleUtility.PrintTextHighlights("HP ", player.Hp.ToString(), " ", false);
-        player.Hp -= target.Atk;
-        if (player.Hp <= 0)
-        {
-            player.IsDead = true;
-            player.Hp = 0;
-        }
-        if (player.IsDead)
-        {
-            Console.WriteLine("-> Dead");
-        }
-        else
-        {
-            ConsoleUtility.PrintTextHighlights("-> ", player.Hp.ToString(), "");
-        }
+        player.PrintPlayerChangeDescription(player.Hp, target.Atk);
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");
@@ -278,9 +243,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name}");
-        ConsoleUtility.PrintTextHighlights("HP ", initialPlayerHp.ToString(), " ", false);
-        ConsoleUtility.PrintTextHighlights("-> ", player.Hp.ToString());
+        player.PrintPlayerChangeDescription(initialPlayerHp);
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");
