@@ -140,7 +140,7 @@ public partial class GameManager
         Console.WriteLine("");
         Console.WriteLine($"{player.Name} 의 공격!");
         ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), "", false);
-        Console.WriteLine($" {target.Name} 을(를) 맞췄습니다. ");
+        Console.Write($" {target.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
 
         Console.WriteLine("");
@@ -151,7 +151,14 @@ public partial class GameManager
         {
             target.IsDead = true;
         }
-        ConsoleUtility.PrintTextHighlights("-> ", target.IsDead ? "Dead" : target.Hp.ToString(), "");
+        if(target.IsDead)
+        {
+            Console.WriteLine("-> Dead");
+        }
+        else
+        {
+            ConsoleUtility.PrintTextHighlights("-> ", target.Hp.ToString(), "");
+        }
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");
@@ -167,7 +174,80 @@ public partial class GameManager
                 }
                 else
                 {
-                    MyBattlePhaseScene();
+                    EnemyBattlePhaseScene(0);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void EnemyBattlePhaseScene(int monsterIdx)
+    {
+        if(monsterIdx >= monsters.Count)
+        {
+            BattleStartScene();
+        }
+        else
+        {
+            Monster target = monsters[monsterIdx];
+
+            if(target.IsDead)
+            {
+                EnemyBattlePhaseScene(monsterIdx + 1);
+            }
+            else
+            {
+                EnemyBattleResultScene(monsterIdx);
+            }
+        }
+    }
+
+    private void EnemyBattleResultScene(int monsterIdx)
+    {
+        Monster target = monsters[monsterIdx];
+
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! - Enemy ■");
+
+        Console.WriteLine("");
+        ConsoleUtility.PrintTextHighlights("Lv.", target.Level.ToString(), $" {target.Name} 의 공격!");
+        Console.Write($"{player.Name} 을(를) 맞췄습니다. ");
+        ConsoleUtility.PrintTextHighlights("[데미지 : ", target.Atk.ToString(), "]");
+
+        Console.WriteLine("");
+        ConsoleUtility.PrintTextHighlights("Lv.", player.Level.ToString(), $" {player.Name}");
+        ConsoleUtility.PrintTextHighlights("HP ", player.Hp.ToString(), " ", false);
+        player.Hp -= target.Atk;
+        if (player.Hp <= 0)
+        {
+            player.IsDead = true;
+            player.Hp = 0;
+        }
+        if (player.IsDead)
+        {
+            Console.WriteLine("-> Dead");
+        }
+        else
+        {
+            ConsoleUtility.PrintTextHighlights("-> ", player.Hp.ToString(), "");
+        }
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 다음");
+        Console.WriteLine("");
+
+        switch (ConsoleUtility.PromptSceneChoice(0, 0))
+        {
+            case 0:
+                if (player.IsDead)
+                {
+                    FinalBattleResultScene(false);
+                }
+                else
+                {
+                    EnemyBattlePhaseScene(monsterIdx + 1);
                 }
                 break;
             default:
