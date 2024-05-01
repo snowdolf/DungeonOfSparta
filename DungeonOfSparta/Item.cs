@@ -45,7 +45,7 @@ internal class Item
         if (withNumber)
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.Write($"{idx} ");
+            Console.Write(ConsoleUtility.PadRightForMixedText(idx.ToString(), 3));
             Console.ResetColor();
         }
         if (IsEquipped)
@@ -55,20 +55,19 @@ internal class Item
             Console.Write("E");
             Console.ResetColor();
             Console.Write("]");
-            Console.Write(ConsoleUtility.PadRightForMixedText(Name, 9));
+            Console.Write(ConsoleUtility.PadRightForMixedText(Name, 11));
         }
-        else Console.Write(ConsoleUtility.PadRightForMixedText(Name, 12));
+        else Console.Write(ConsoleUtility.PadRightForMixedText(Name, 14));
 
         Console.Write(" | ");
 
-        if (Atk != 0) Console.Write($"공격력 {(Atk >= 0 ? "+" : "")}{Atk} ");
-        if (Def != 0) Console.Write($"방어력 {(Atk >= 0 ? "+" : "")}{Def} ");
-        if (Hp != 0) Console.Write($"체  력 {(Atk >= 0 ? "+" : "")}{Hp} ");
+        if (Atk != 0) Console.Write($"공격력 +{ConsoleUtility.PadRightForMixedText(Atk.ToString(), 2)}");
+        if (Def != 0) Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+        if (Hp != 0)  Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
 
         Console.Write(" | ");
 
         Console.WriteLine(Desc);
-
     }
 
     public void PrintStoreItemDescription(bool withNumber = false, int idx = 0, bool onlyGold = false)
@@ -78,20 +77,20 @@ internal class Item
         if (withNumber)
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.Write("{0} ", idx);
+            Console.Write(ConsoleUtility.PadRightForMixedText(idx.ToString(), 3));
             Console.ResetColor();
         }
-        Console.Write(ConsoleUtility.PadRightForMixedText(Name, 12));
+        Console.Write(ConsoleUtility.PadRightForMixedText(Name, 14));
 
         Console.Write(" | ");
 
-        if (Atk != 0) Console.Write($"공격력 {(Atk >= 0 ? "+" : "")}{Atk} ");
-        if (Def != 0) Console.Write($"방어력 {(Def >= 0 ? "+" : "")}{Def} ");
-        if (Hp != 0) Console.Write($"체  력 {(Hp >= 0 ? "+" : "")}{Hp}");
+        if (Atk != 0) Console.Write($"공격력 +{ConsoleUtility.PadRightForMixedText(Atk.ToString(), 2)}");
+        if (Def != 0) Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+        if (Hp != 0)  Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
 
         Console.Write(" | ");
 
-        Console.Write(ConsoleUtility.PadRightForMixedText(Desc, 12));
+        Console.Write(ConsoleUtility.PadRightForMixedText(Desc, 20));
 
         Console.Write(" | ");
 
