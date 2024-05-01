@@ -16,10 +16,18 @@ public partial class GameManager
     // FinalBattleResultScene 에서 활용될 예정
     int initialPlayerHp;
 
+    int bonusAtk;
+    int bonusDef;
+    int bonusHp;
+
     // 전투 전 몬스터를 랜덤하게 생성하는 씬
     private void BattleScene()
     {
         initialPlayerHp = player.Hp;
+
+        bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+        bonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
+        bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
 
         monsters = new List<Monster>();
 
@@ -62,7 +70,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        player.PrintPlayerDescription();
+        player.PrintPlayerDescription(bonusHp);
 
         Console.WriteLine("");
         Console.WriteLine("1. 공격");
@@ -104,7 +112,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        player.PrintPlayerDescription();
+        player.PrintPlayerDescription(bonusHp);
 
         Console.WriteLine("");
         Console.WriteLine("0. 취소");
@@ -124,7 +132,6 @@ public partial class GameManager
                 }
                 else
                 {
-                    int bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
                     int damage = player.Atk + bonusAtk;
                     int damageMargin = (int)Math.Ceiling(damage * 0.1f);
                     
