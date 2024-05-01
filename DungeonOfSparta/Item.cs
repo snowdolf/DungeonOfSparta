@@ -1,7 +1,10 @@
 ﻿public enum ItemType
 {
     WEAPON,
-    ARMOR
+    HELMET,
+    BODYARMOUR,
+    GLOVE,
+    BOOT
 }
 
 internal class Item
