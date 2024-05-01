@@ -24,12 +24,12 @@
     }
 
     // BattleScene에서 player 정보 출력할 때 사용
-    public void PrintPlayerDescription()
+    public void PrintPlayerDescription(int bonusHp = 0)
     {
         Console.WriteLine("[내정보]");
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name} ( {Job} )");
         ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString(), "", false);
-        ConsoleUtility.PrintTextHighlights("/", "100");
+        ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString());
     }
 
     // BattleScene에서 player 정보 변화를 출력할 때 사용
