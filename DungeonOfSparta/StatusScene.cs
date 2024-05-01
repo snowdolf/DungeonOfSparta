@@ -19,7 +19,8 @@
 
         ConsoleUtility.PrintTextHighlights("공격력 : ", (player.Atk + bonusAtk).ToString(), bonusAtk > 0 ? $" (+{bonusAtk})" : "");
         ConsoleUtility.PrintTextHighlights("방어력 : ", (player.Def + bonusDef).ToString(), bonusDef > 0 ? $" (+{bonusDef})" : "");
-        ConsoleUtility.PrintTextHighlights("체 력 : ", (player.Hp + bonusHp).ToString(), bonusHp > 0 ? $" (+{bonusHp})" : "");
+        ConsoleUtility.PrintTextHighlights("체 력 : ", player.Hp.ToString(), "", false);
+        ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString(), bonusHp > 0 ? $" (+{bonusHp})" : "");
 
         ConsoleUtility.PrintTextHighlights("Gold : ", player.Gold.ToString());
         Console.WriteLine("");

@@ -21,6 +21,8 @@
         Console.WriteLine("0. 나가기");
         Console.WriteLine("");
 
+        int bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+
         switch (ConsoleUtility.PromptSceneChoice(0, 1))
         {
             case 0:
@@ -31,9 +33,9 @@
                 if (player.Potion > 0)
                 {
                     player.Hp += 30;
-                    if (player.Hp > 100)
+                    if (player.Hp > (100 + bonusHp))
                     {
-                        player.Hp = 100;
+                        player.Hp = 100 + bonusHp;
                     }
                     player.Potion--;
                     PotionScene("회복을 완료했습니다.");
