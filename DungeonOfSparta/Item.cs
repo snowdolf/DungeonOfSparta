@@ -1,7 +1,10 @@
 ﻿public enum ItemType
 {
     WEAPON,
-    ARMOR
+    HELMET,
+    BODYARMOUR,
+    GLOVE,
+    BOOT
 }
 
 internal class Item
@@ -42,7 +45,7 @@ internal class Item
         if (withNumber)
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.Write($"{idx} ");
+            Console.Write(ConsoleUtility.PadRightForMixedText(idx.ToString(), 3));
             Console.ResetColor();
         }
         if (IsEquipped)
@@ -52,20 +55,62 @@ internal class Item
             Console.Write("E");
             Console.ResetColor();
             Console.Write("]");
-            Console.Write(ConsoleUtility.PadRightForMixedText(Name, 9));
+            Console.Write(ConsoleUtility.PadRightForMixedText(Name, 11));
         }
-        else Console.Write(ConsoleUtility.PadRightForMixedText(Name, 12));
+        else Console.Write(ConsoleUtility.PadRightForMixedText(Name, 14));
 
         Console.Write(" | ");
 
-        if (Atk != 0) Console.Write($"공격력 {(Atk >= 0 ? "+" : "")}{Atk} ");
-        if (Def != 0) Console.Write($"방어력 {(Atk >= 0 ? "+" : "")}{Def} ");
-        if (Hp != 0) Console.Write($"체  력 {(Atk >= 0 ? "+" : "")}{Hp} ");
+        int cnt = 0;
+
+        if (Atk != 0)
+        {
+            Console.Write($"공격력 +{ConsoleUtility.PadRightForMixedText(Atk.ToString(), 2)}");
+            cnt = 0;
+        }
+        else if (Def != 0)
+        {
+            Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+            cnt = 1;
+        }
+        else if (Hp != 0)
+        {
+            Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
+            cnt = 2;
+        }
 
         Console.Write(" | ");
 
         Console.WriteLine(Desc);
 
+        // 방어력도 있는 경우
+        if (cnt < 1 && Def != 0)
+        {
+            if (withNumber)
+            {
+                //Console.Write(ConsoleUtility.PadRightForMixedText("", 3));
+                Console.Write(new string(' ', 3));
+            }
+            Console.Write(new string(' ', 16));
+            Console.Write(" | ");
+            Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+            cnt = 1;
+            Console.WriteLine(" | ");
+        }
+
+        // 체력도 있는 경우
+        if (cnt < 2 && Hp != 0)
+        {
+            if (withNumber)
+            {
+                Console.Write(new string(' ', 3));
+            }
+            Console.Write(new string(' ', 16));
+            Console.Write(" | ");
+            Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
+            cnt = 2;
+            Console.WriteLine(" | ");
+        }
     }
 
     public void PrintStoreItemDescription(bool withNumber = false, int idx = 0, bool onlyGold = false)
@@ -75,20 +120,34 @@ internal class Item
         if (withNumber)
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.Write("{0} ", idx);
+            Console.Write(ConsoleUtility.PadRightForMixedText(idx.ToString(), 3));
             Console.ResetColor();
         }
-        Console.Write(ConsoleUtility.PadRightForMixedText(Name, 12));
+        Console.Write(ConsoleUtility.PadRightForMixedText(Name, 14));
 
         Console.Write(" | ");
 
-        if (Atk != 0) Console.Write($"공격력 {(Atk >= 0 ? "+" : "")}{Atk} ");
-        if (Def != 0) Console.Write($"방어력 {(Def >= 0 ? "+" : "")}{Def} ");
-        if (Hp != 0) Console.Write($"체  력 {(Hp >= 0 ? "+" : "")}{Hp}");
+        int cnt = 0;
+
+        if (Atk != 0)
+        {
+            Console.Write($"공격력 +{ConsoleUtility.PadRightForMixedText(Atk.ToString(), 2)}");
+            cnt = 0;
+        }
+        else if (Def != 0)
+        {
+            Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+            cnt = 1;
+        }
+        else if (Hp != 0)
+        {
+            Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
+            cnt = 2;
+        }
 
         Console.Write(" | ");
 
-        Console.Write(ConsoleUtility.PadRightForMixedText(Desc, 12));
+        Console.Write(ConsoleUtility.PadRightForMixedText(Desc, 20));
 
         Console.Write(" | ");
 
@@ -99,6 +158,35 @@ internal class Item
         else
         {
             ConsoleUtility.PrintTextHighlights("", Price.ToString(), " G");
+        }
+
+        // 방어력도 있는 경우
+        if(cnt < 1 && Def != 0)
+        {
+            if (withNumber)
+            {
+                //Console.Write(ConsoleUtility.PadRightForMixedText("", 3));
+                Console.Write(new string(' ', 3));
+            }
+            Console.Write(new string(' ', 16));
+            Console.Write(" | ");
+            Console.Write($"방어력 +{ConsoleUtility.PadRightForMixedText(Def.ToString(), 2)}");
+            cnt = 1;
+            Console.WriteLine(" | ");
+        }
+
+        // 체력도 있는 경우
+        if (cnt < 2 && Hp != 0)
+        {
+            if (withNumber)
+            {
+                Console.Write(new string(' ', 3));
+            }
+            Console.Write(new string(' ', 16));
+            Console.Write(" | ");
+            Console.Write($"체  력 +{ConsoleUtility.PadRightForMixedText(Hp.ToString(), 2)}");
+            cnt = 2;
+            Console.WriteLine(" | ");
         }
     }
 
