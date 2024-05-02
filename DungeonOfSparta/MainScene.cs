@@ -36,7 +36,7 @@
                 StoreScene();
                 break;
             case 4:
-                BattleScene();
+                StageSelectScene();
                 break;
             case 5:
                 PotionScene();

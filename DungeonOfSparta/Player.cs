@@ -9,6 +9,7 @@
     public int Hp { get; set; }
     public int Gold { get; set; }
     public int Potion { get; set; }
+    public int MaxStage {  get; set; }
     public bool IsDead { get; set; }
 
     public Player(string name, string job, int level, int atk, int def, int hp, int gold, int potion, bool isDead = false)
@@ -21,6 +22,7 @@
         Hp = hp;
         Gold = gold;
         Potion = potion;
+        MaxStage = 1;
         IsDead = isDead;
     }
 
@@ -67,7 +69,7 @@
     public void EarnExp(int exp, Skill skills) // 경험치 획득 메서드입니다.
     {
         Console.Write($"{exp}만큼의 경험치를 획득했습니다! ");
-        ConsoleUtility.PrintTextHighlights("", $"{Exp}/{Level * 5} => {Exp+exp}/{Level * 5}");
+        ConsoleUtility.PrintTextHighlights("", $"{Exp}/{Level * 5} -> {Exp+exp}/{Level * 5}");
         Exp += exp;
         if (Exp >= 5 * Level) // 경험치가 오르면!
         {
@@ -113,6 +115,15 @@
                 Atk += 2;
                 Def += 2;
                 break;
+        }
+    }
+
+    public void CheckUnlockStage(int stage)
+    {
+        if(stage == MaxStage)
+        {
+            ConsoleUtility.PrintTextHighlights("\n최고 스테이지를 돌파하였습니다! ", $"{MaxStage}", "", false);
+            ConsoleUtility.PrintTextHighlights(" -> ", $"{++MaxStage}");
         }
     }
 }

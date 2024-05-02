@@ -20,6 +20,48 @@ public partial class GameManager
     int bonusDef;
     int bonusHp;
 
+    // 스테이지 선택
+    int stage;
+
+    // 스테이지를 선택하는 씬
+    private void StageSelectScene()
+    {
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! - Stage Select ■");
+
+        Console.WriteLine("");
+        Console.Write("전투 시작 전 스테이지를 선택하세요. ");
+        ConsoleUtility.PrintTextHighlights("(현재 목표 : ", player.MaxStage.ToString(), " 층)");
+
+        Console.WriteLine("");
+        if(player.MaxStage == 1)
+        {
+            Console.WriteLine("1. 스테이지 입력");
+        }
+        else
+        {
+            Console.WriteLine($"1 ~ {player.MaxStage}. 스테이지 입력");
+        }
+        Console.WriteLine("0. 나가기");
+        Console.WriteLine("");
+
+        int keyInput = ConsoleUtility.PromptSceneChoice(0, player.MaxStage);
+
+        switch (keyInput)
+        {
+            case 0:
+                MainScene();
+                break;
+            default:
+                stage = keyInput;
+                BattleScene();
+                break;
+        }
+
+        BattleScene();
+    }
+
     // 전투 전 몬스터를 랜덤하게 생성하는 씬
     private void BattleScene()
     {
@@ -382,6 +424,7 @@ public partial class GameManager
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
             player.EarnExp(monsters.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
+            player.CheckUnlockStage(stage);
         }
         else
         {
