@@ -48,6 +48,5 @@
                 PotionScene();
                 break;
         }
-        MainScene();
     }
 }

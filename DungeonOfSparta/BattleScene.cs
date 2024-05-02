@@ -63,8 +63,6 @@ public partial class GameManager
                 BattleScene();
                 break;
         }
-
-        BattleScene();
     }
 
     // 전투 전 몬스터를 랜덤하게 생성하는 씬

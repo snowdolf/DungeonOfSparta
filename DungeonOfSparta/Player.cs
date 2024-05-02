@@ -1,7 +1,7 @@
 ﻿internal class Player
 {
-    public string Name { get; }
-    public string Job { get; }
+    public string Name { get; set; }
+    public string Job { get; set; }
     public int Level { get; set; }
     public int Exp { get; set; }
     public int Atk { get; set; }

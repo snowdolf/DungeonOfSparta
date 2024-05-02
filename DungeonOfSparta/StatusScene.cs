@@ -7,8 +7,8 @@
         ConsoleUtility.ShowTitle("■ 상태보기 ■");
         Console.WriteLine("캐릭터의 정보가 표기됩니다.");
 
-        ConsoleUtility.PrintTextHighlights("Lv. ", player.Level.ToString("00"));
         Console.WriteLine("");
+        ConsoleUtility.PrintTextHighlights("Lv. ", player.Level.ToString("00"));
         Console.WriteLine($"{player.Name} ( {player.Job} )");
 
         // TODO : 능력치 강화분을 표현하도록 변경
