@@ -3,6 +3,7 @@
     public string Name { get; }
     public string Job { get; }
     public int Level { get; set; }
+    public int Exp { get; set; }
     public int Atk { get; set; }
     public int Def { get; set; }
     public int Hp { get; set; }
@@ -61,5 +62,57 @@
         ConsoleUtility.PrintTextHighlights("Lv.", monster.Level.ToString(), "", false);
         Console.Write($" {monster.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
+    }
+
+    public void EarnExp(int exp, Skill skills) // 경험치 획득 메서드입니다.
+    {
+        Console.Write($"{exp}만큼의 경험치를 획득했습니다! ");
+        ConsoleUtility.PrintTextHighlights("", $"{Exp}/{Level * 5} => {Exp+exp}/{Level * 5}");
+        Exp += exp;
+        if (Exp >= 5 * Level) // 경험치가 오르면!
+        {
+            Exp = Exp - 5 * Level; // 요구되는 경험치만큼 감소
+            Level++;    // 레벨 증가
+            LevelUpRewards(Level, skills);  // 레벨업 시 레벨 보상 메서드입니다.
+        }
+    }
+
+    void LevelUpRewards(int level, Skill skills) // 레벨 보상 메서드입니다.
+    {
+        ConsoleUtility.PrintTextHighlights("", "레벨이 올랐습니다!");
+
+        ConsoleUtility.PrintTextHighlights("공격력 증가! ", $"{Atk} -> {Atk + 2}");
+        ConsoleUtility.PrintTextHighlights("방어력 증가! ", $"{Def} -> {Def + 2}");
+
+        switch (level)  // 레벨별로 얻는 보상을 나눴습니다.
+        {
+            case 2:
+                Atk += 2;
+                Def += 2;
+                skills.SkillEarn(Skill.SkillName.Slash); // 휩쓸기
+                break;
+            case 3:
+                Atk += 2;
+                Def += 2;
+                skills.SkillEarn(Skill.SkillName.RevengeAttack); // 복수
+                break;
+            case 4:
+                Atk += 2;
+                Def += 2;
+                break;
+            case 5:
+                Atk += 2;
+                Def += 2;
+                break;
+            case 6:
+                Atk += 2;
+                Def += 2;
+                break;
+            default:
+                Console.WriteLine("추후에 업데이트할 예정입니다.");
+                Atk += 2;
+                Def += 2;
+                break;
+        }
     }
 }

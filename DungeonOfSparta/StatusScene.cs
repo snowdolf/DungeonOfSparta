@@ -23,8 +23,11 @@
         ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString(), bonusHp > 0 ? $" (+{bonusHp})" : "");
 
         ConsoleUtility.PrintTextHighlights("Gold : ", player.Gold.ToString());
-        Console.WriteLine("");
 
+        Console.WriteLine("");
+        skills.SkillDescription();  // 스킬 목록 보여주기
+
+        Console.WriteLine("");
         Console.WriteLine("0. 뒤로가기");
         Console.WriteLine("");
 

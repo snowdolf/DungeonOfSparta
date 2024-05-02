@@ -5,6 +5,8 @@
 
     private List<Item> storeInventory;
 
+    private Skill skills = new Skill(); // 스킬 기능 추가!
+
     public GameManager()
     {
         InitializeGame();
@@ -17,6 +19,7 @@
         inventory = new List<Item>();
 
         storeInventory = new List<Item>();
+
         storeInventory.Add(new Item("낡은 검", "낡은 검", ItemType.WEAPON, 5, 0, 0, 2000));
         storeInventory.Add(new Item("전사의 검", "전설 속 전사의 검", ItemType.WEAPON, 15, 0, 0, 10000));
 
@@ -31,6 +34,8 @@
 
         storeInventory.Add(new Item("수련자 장화", "쓸만한 장화", ItemType.BOOT, 0, 5, 0, 1000));
         storeInventory.Add(new Item("무쇠 장화", "튼튼한 장화", ItemType.BOOT, 3, 10, 0, 2000));
+
+        skills.SkillEarn(Skill.SkillName.DoubleAttack);  // 기본 스킬입니다.
     }
 
     public void StartGame()

@@ -74,12 +74,16 @@ public partial class GameManager
 
         Console.WriteLine("");
         Console.WriteLine("1. 공격");
+        Console.WriteLine("2. 스킬");
         Console.WriteLine("");
 
-        switch (ConsoleUtility.PromptSceneChoice(1, 1))
+        switch (ConsoleUtility.PromptSceneChoice(1, 2))
         {
             case 1:
                 MyBattlePhaseScene();
+                break;
+            case 2:
+                MyBattlePhaseSceneSkill();  // 스킬 선택 씬으로 이동
                 break;
             default:
                 break;
@@ -87,7 +91,7 @@ public partial class GameManager
     }
 
     // 플레이어가 공격할 대상을 선택하는 씬
-    private void MyBattlePhaseScene(string? prompt = null)
+    private void MyBattlePhaseScene(string? prompt = null) 
     {
         if (prompt != null)
         {
@@ -138,6 +142,91 @@ public partial class GameManager
         }
     }
 
+    // 스킬 관련
+    private void MyBattlePhaseSceneSkill(string? prompt = null) // 차마 기존에 있던 것에 추가시키기 어려워서 새로 추가시켰습니다.
+    {
+        if (prompt != null)
+        {
+            // 1초간 메시지를 띄운 다음에 다시 진행
+            Console.Clear();
+            ConsoleUtility.ShowTitle(prompt);
+            Thread.Sleep(300);
+        }
+
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! ■");
+
+        Console.WriteLine("");
+        player.PrintPlayerDescription();
+
+        Console.WriteLine("");
+        skills.SkillSelect();
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 취소");
+        Console.WriteLine("");
+
+        // 스킬 선택
+        int skillInput = ConsoleUtility.PromptSceneChoice(0, skills.SkillList.Count);
+
+        switch (skillInput)
+        {
+            case 0:
+                BattleStartScene();
+                break;
+            default:
+                break;
+        }
+
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! ■");
+
+        Console.WriteLine("");
+        for (int i = 0; i < monsters.Count; i++)
+        {
+            monsters[i].PrintMonsterDescription(true, i + 1);
+        }
+
+        Console.WriteLine("");
+        Console.WriteLine("공격하고 싶은 적을 선택하세요!");
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 취소");
+        Console.WriteLine("");
+
+        // 몬스터 선택
+        bool select = true;
+        while (select) 
+        {
+            int keyInput = ConsoleUtility.PromptSceneChoice(0, monsters.Count);
+            switch (keyInput)
+            {
+                case 0:
+                    BattleStartScene();
+                    select = false;
+                    break;
+                default:
+                    if (monsters[keyInput - 1].IsDead)
+                    {
+                        MyBattlePhaseSceneSkill("이미 죽은 몬스터입니다.");
+                    }
+                    else
+                    {
+                        int bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+                        int damage = player.Atk + bonusAtk;
+                        int damageMargin = (int)Math.Ceiling(damage * 0.1f);
+
+                        // 공격 대상 및 데미지를 넘겨준다
+                        MyBattleResultSceneSkill(keyInput - 1, random.Next(damage - damageMargin, damage + damageMargin + 1), skillInput);
+                        select = false;
+                    }
+                    break;
+            }
+        }
+    }
+
     // 플레이어의 전투 결과를 보여주는 씬
     private void MyBattleResultScene(int monsterIdx, int damage)
     {
@@ -161,6 +250,40 @@ public partial class GameManager
         {
             case 0:
                 if(monsters.All(monster => monster.IsDead))
+                {
+                    // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
+                    FinalBattleResultScene(true);
+                }
+                else
+                {
+                    // 플레이어 턴이 끝났음
+                    // 적 턴 시작
+                    // Monster 리스트 안의 0번 monster부터 공격 가능한지 ( 살아있는지 ) 탐색
+                    EnemyBattlePhaseScene(0);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+            // 스킬 관련 씬
+    private void MyBattleResultSceneSkill(int monsterIdx, int damage, int skillIdx)
+    {
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! ■");
+
+        Console.WriteLine("");
+        skills.SkillUse(monsters, monsterIdx, player, damage, skillIdx);
+
+        Console.WriteLine("");
+        Console.WriteLine("0. 다음");
+        Console.WriteLine("");
+
+        switch (ConsoleUtility.PromptSceneChoice(0, 0))
+        {
+            case 0:
+                if (monsters.All(monster => monster.IsDead))
                 {
                     // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
                     FinalBattleResultScene(true);
@@ -258,6 +381,7 @@ public partial class GameManager
             Console.ResetColor();
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
+            player.EarnExp(monsters.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
         }
         else
         {
