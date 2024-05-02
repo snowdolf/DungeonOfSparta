@@ -125,7 +125,7 @@ public partial class GameManager
                 MyBattlePhaseScene();
                 break;
             case 2:
-                MyBattlePhaseSceneSkill();  // 스킬 선택 씬으로 이동
+                MyBattlePhaseSceneSkillSelect();  // 스킬 선택 씬으로 이동
                 break;
             default:
                 break;
@@ -185,16 +185,8 @@ public partial class GameManager
     }
 
     // 스킬 관련
-    private void MyBattlePhaseSceneSkill(string? prompt = null) // 차마 기존에 있던 것에 추가시키기 어려워서 새로 추가시켰습니다.
+    private void MyBattlePhaseSceneSkillSelect()
     {
-        if (prompt != null)
-        {
-            // 1초간 메시지를 띄운 다음에 다시 진행
-            Console.Clear();
-            ConsoleUtility.ShowTitle(prompt);
-            Thread.Sleep(300);
-        }
-
         Console.Clear();
 
         ConsoleUtility.ShowTitle("■ Battle!! ■");
@@ -210,15 +202,27 @@ public partial class GameManager
         Console.WriteLine("");
 
         // 스킬 선택
-        int skillInput = ConsoleUtility.PromptSceneChoice(0, skills.SkillList.Count);
+        int keyInput = ConsoleUtility.PromptSceneChoice(0, skills.SkillList.Count);
 
-        switch (skillInput)
+        switch (keyInput)
         {
             case 0:
                 BattleStartScene();
                 break;
             default:
+                MyBattlePhaseSceneSkill(keyInput);
                 break;
+        }
+    }
+
+    private void MyBattlePhaseSceneSkill(int skillIdx, string? prompt = null)
+    {
+        if (prompt != null)
+        {
+            // 1초간 메시지를 띄운 다음에 다시 진행
+            Console.Clear();
+            ConsoleUtility.ShowTitle(prompt);
+            Thread.Sleep(300);
         }
 
         Console.Clear();
@@ -238,34 +242,26 @@ public partial class GameManager
         Console.WriteLine("0. 취소");
         Console.WriteLine("");
 
-        // 몬스터 선택
-        bool select = true;
-        while (select) 
+        int keyInput = ConsoleUtility.PromptSceneChoice(0, monsters.Count);
+        switch (keyInput)
         {
-            int keyInput = ConsoleUtility.PromptSceneChoice(0, monsters.Count);
-            switch (keyInput)
-            {
-                case 0:
-                    BattleStartScene();
-                    select = false;
-                    break;
-                default:
-                    if (monsters[keyInput - 1].IsDead)
-                    {
-                        MyBattlePhaseSceneSkill("이미 죽은 몬스터입니다.");
-                    }
-                    else
-                    {
-                        int bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
-                        int damage = player.Atk + bonusAtk;
-                        int damageMargin = (int)Math.Ceiling(damage * 0.1f);
+            case 0:
+                MyBattlePhaseSceneSkillSelect();
+                break;
+            default:
+                if (monsters[keyInput - 1].IsDead)
+                {
+                    MyBattlePhaseSceneSkill(skillIdx, "이미 죽은 몬스터입니다.");
+                }
+                else
+                {
+                    int damage = player.Atk + bonusAtk;
+                    int damageMargin = (int)Math.Ceiling(damage * 0.1f);
 
-                        // 공격 대상 및 데미지를 넘겨준다
-                        MyBattleResultSceneSkill(keyInput - 1, random.Next(damage - damageMargin, damage + damageMargin + 1), skillInput);
-                        select = false;
-                    }
-                    break;
-            }
+                    // 공격 대상 및 데미지를 넘겨준다
+                    MyBattleResultSceneSkill(keyInput - 1, random.Next(damage - damageMargin, damage + damageMargin + 1), skillIdx);
+                }
+                break;
         }
     }
 
@@ -311,7 +307,8 @@ public partial class GameManager
                 break;
         }
     }
-            // 스킬 관련 씬
+
+    // 스킬 관련 씬
     private void MyBattleResultSceneSkill(int monsterIdx, int damage, int skillIdx)
     {
         Console.Clear();
