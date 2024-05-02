@@ -409,15 +409,21 @@ public partial class GameManager
     {
         Monster target = monsters[monsterIdx];
 
+        int damage = target.Atk - (player.Def + bonusDef) / 5;
+        if (damage <= 0)
+        {
+            damage = 1;
+        }
+
         Console.Clear();
 
         ConsoleUtility.ShowTitle("■ Battle!! - Enemy ■");
 
         Console.WriteLine("");
-        target.PrintAttackDescription(player);
+        target.PrintAttackDescription(player, damage);
 
         Console.WriteLine("");
-        player.PrintPlayerChangeDescription(player.Hp, target.Atk);
+        player.PrintPlayerChangeDescription(player.Hp, damage);
 
         Console.WriteLine("");
         Console.WriteLine("0. 다음");

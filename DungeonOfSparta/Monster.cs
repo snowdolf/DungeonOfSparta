@@ -65,13 +65,13 @@
     }
 
     // BattleScene에서 monster가 player를 공격할 때 사용
-    public void PrintAttackDescription(Player player)
+    public void PrintAttackDescription(Player player, int damage)
     {
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), "", false);
         Console.WriteLine($" {Name} 의 공격!");
 
         Console.WriteLine("");
         Console.Write($"{player.Name} 을(를) 맞췄습니다. ");
-        ConsoleUtility.PrintTextHighlights("[데미지 : ", Atk.ToString(), "]");
+        ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
     }
 }
