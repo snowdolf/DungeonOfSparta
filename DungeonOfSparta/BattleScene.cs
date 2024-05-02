@@ -279,6 +279,9 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
+        Console.WriteLine($"{player.Name} 의 공격!");
+
+        Console.WriteLine("");
         player.PrintAttackDescription(target, damage);
 
         Console.WriteLine("");

@@ -9,7 +9,7 @@
     public int Hp { get; set; }
     public int Gold { get; set; }
     public int Potion { get; set; }
-    public int MaxStage {  get; set; }
+    public int MaxStage { get; set; }
     public bool IsDead { get; set; }
 
     public Player(string name, string job, int level, int atk, int def, int hp, int gold, int potion, bool isDead = false)
@@ -60,7 +60,6 @@
     // BattleScene에서 player가 monster를 공격할 때 사용
     public void PrintAttackDescription(Monster monster, int damage)
     {
-        Console.WriteLine($"{Name} 의 공격!");
         ConsoleUtility.PrintTextHighlights("Lv.", monster.Level.ToString(), "", false);
         Console.Write($" {monster.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
@@ -69,7 +68,10 @@
     public void EarnExp(int exp, Skill skills) // 경험치 획득 메서드입니다.
     {
         Console.Write($"{exp}만큼의 경험치를 획득했습니다! ");
-        ConsoleUtility.PrintTextHighlights("", $"{Exp}/{Level * 5} -> {Exp+exp}/{Level * 5}");
+        ConsoleUtility.PrintTextHighlights("", $"{Exp}", "/", false);
+        ConsoleUtility.PrintTextHighlights("", $"{Level * 5}", " -> ", false);
+        ConsoleUtility.PrintTextHighlights("", $"{Exp + exp}", "/", false);
+        ConsoleUtility.PrintTextHighlights("", $"{Level * 5}");
         Exp += exp;
         if (Exp >= 5 * Level) // 경험치가 오르면!
         {
@@ -81,10 +83,12 @@
 
     void LevelUpRewards(int level, Skill skills) // 레벨 보상 메서드입니다.
     {
-        ConsoleUtility.PrintTextHighlights("", "레벨이 올랐습니다!");
+        ConsoleUtility.PrintTextHighlights("", "\n레벨이 올랐습니다!");
 
-        ConsoleUtility.PrintTextHighlights("공격력 증가! ", $"{Atk} -> {Atk + 2}");
-        ConsoleUtility.PrintTextHighlights("방어력 증가! ", $"{Def} -> {Def + 2}");
+        ConsoleUtility.PrintTextHighlights("\n공격력 증가! ", $"{Atk}", " -> ", false);
+        ConsoleUtility.PrintTextHighlights("", $"{Atk + 2}");
+        ConsoleUtility.PrintTextHighlights("방어력 증가! ", $"{Def}", " -> ", false);
+        ConsoleUtility.PrintTextHighlights("", $"{Def + 2}");
 
         switch (level)  // 레벨별로 얻는 보상을 나눴습니다.
         {
@@ -122,8 +126,8 @@
     {
         if(stage == MaxStage)
         {
-            ConsoleUtility.PrintTextHighlights("\n최고 스테이지를 돌파하였습니다! ", $"{MaxStage}", "", false);
-            ConsoleUtility.PrintTextHighlights(" -> ", $"{++MaxStage}");
+            ConsoleUtility.PrintTextHighlights("\n최고 스테이지를 돌파하였습니다! ", $"{MaxStage}", " -> ", false);
+            ConsoleUtility.PrintTextHighlights("", $"{++MaxStage}");
         }
     }
 }

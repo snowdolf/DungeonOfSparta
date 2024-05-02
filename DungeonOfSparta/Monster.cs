@@ -69,6 +69,8 @@
     {
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), "", false);
         Console.WriteLine($" {Name} 의 공격!");
+
+        Console.WriteLine("");
         Console.Write($"{player.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", Atk.ToString(), "]");
     }

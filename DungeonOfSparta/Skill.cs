@@ -70,6 +70,7 @@ internal class Skill
         {
             for (int i = 0; i < SkillList.Count; i++)
             {
+                Console.WriteLine("");
                 SkillList[i].PrintSkillDescription(true, i + 1);
             }
             Console.WriteLine();
@@ -113,7 +114,11 @@ class DoubleAttack : Skill
         damage = (int)(damage * 2 * 0.8);  
 
         Console.WriteLine($"{player.Name}가 더블어택을 시전합니다!");
+
+        Console.WriteLine("");
         player.PrintAttackDescription(targets[idx], damage);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }
@@ -136,9 +141,12 @@ class Slash : Skill
         foreach (Monster i in targets)
         {
             if (i.IsDead == true) { continue; }
+
+            Console.WriteLine("");
             player.PrintAttackDescription(i, damage);
+
+            Console.WriteLine("");
             i.PrintMonsterChangeDescription(i.Hp, damage);
-            
         }
     }
 }
@@ -158,7 +166,11 @@ class RevengeAttack : Skill
         damage = (int)((damage * 0.5) + ((100 - player.Hp) * 0.5));
 
         Console.WriteLine($"{player.Name}가 복수를 시전합니다!");
+
+        Console.WriteLine("");
         player.PrintAttackDescription(targets[idx], damage);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }
