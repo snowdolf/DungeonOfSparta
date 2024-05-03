@@ -18,10 +18,11 @@
         Console.WriteLine("3. 상     점");
         Console.WriteLine("4. 전투 시작");
         Console.WriteLine("5. 회복 아이템");
+        Console.WriteLine("6. 퀘스트");
         Console.WriteLine("");
 
         // 2. 선택한 결과를 검증함
-        int choice = ConsoleUtility.PromptSceneChoice(1, 5);
+        int choice = ConsoleUtility.PromptSceneChoice(1, 6);
 
         // 3. 선택한 결과에 따라 보내줌
         switch (choice)
@@ -40,6 +41,9 @@
                 break;
             case 5:
                 PotionScene();
+                break;
+            case 6:
+                QuestSelectScene();
                 break;
         }
         MainScene();

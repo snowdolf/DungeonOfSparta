@@ -10,6 +10,7 @@
     public GameManager()
     {
         InitializeGame();
+        QuestManager();
     }
 
     private void InitializeGame()
