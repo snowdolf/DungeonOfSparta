@@ -1,4 +1,5 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection.Emit;
 using System.Xml.Linq;
 
 enum MonsterType
@@ -64,6 +65,9 @@ public partial class GameManager
     // 재귀 호출 피하기
     bool isWantFight;
 
+    // 아이템 사용 시 출력하게할 메시지
+    string UseItemText;
+
     private void BattleScene()
     {
         isWantFight = false;
@@ -71,12 +75,12 @@ public partial class GameManager
         while (isWantFight)
         {
             BattleCycle();
-        } 
+        }
 
         MainScene();
     }
 
-      // 스테이지를 선택하는 씬
+    // 스테이지를 선택하는 씬
     private void StageSelectScene()
     {
         battlesituation = BattleSituation.Peace;
@@ -90,7 +94,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("(현재 목표 : ", player.MaxStage.ToString(), " 층)");
 
         Console.WriteLine("");
-        if(player.MaxStage == 1)
+        if (player.MaxStage == 1)
         {
             Console.WriteLine("1. 스테이지 입력");
         }
@@ -125,7 +129,7 @@ public partial class GameManager
         {                                                       // 추가적으로 메서드 내에서 return 없이 계속해서 서로 간의 호출을 계속할 경우 호출 스택이 지워지지 않고 그대로 쌓인다.
             ParameterCleaning();
             BattleStartScene();
-            if (battlesituation == BattleSituation.BattleFlee) { break;}
+            if (battlesituation == BattleSituation.BattleFlee) { break; }
             switch ((int)act)   // 0 취소, 1 공격, 2 스킬. 3 아이템 10. 특정 행동 실패
             {
                 case 0:
@@ -136,12 +140,8 @@ public partial class GameManager
                     SkillSelectScene();
                     break;
                 case 3:
-                    Console.Clear();
-                    Console.WriteLine("아직 구현 중인 기능입니다!");
-                    Console.WriteLine();
-                    Console.WriteLine("엔터를 눌러 계속 진행하세요!");
-                    Console.ReadLine();
-                    continue;
+                    ItemSelectScene();
+                    break;
                 case 10:
                     Console.WriteLine(" 엔터를 눌러 계속... ");
                     Console.ReadLine();
@@ -153,8 +153,8 @@ public partial class GameManager
                     continue;
             }
             if (act == PlayerActSelect.Cancel) { continue; }    // 캔슬! 반복문 처음부터
-            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill) 
-            { 
+            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill)
+            {
                 EnemySelectScene(); if (act == PlayerActSelect.Cancel) { continue; } // 캔슬! 반복문 처음부터
             }
             // 플레이어의 행동 결과!
@@ -164,25 +164,25 @@ public partial class GameManager
             {
                 if (monster.IsDead == true) { continue; }   // 죽은 적은 아무 행동도 하지 않습니다.
                 EnemyBattleResultScene(monster); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
-            }
-        } // 전투 중의 마지막 싸이클
+            }  // 전투 중의 마지막 싸이클
+        }
 
         // 전투 결과
         FinalBattleResultScene();
 
         Console.WriteLine("");
-        
+
         if (battlesituation == BattleSituation.BattleWin)
         {
             Console.WriteLine("계속 진행하시겠습니까?");
             stage++;
             ConsoleUtility.PrintTextHighlights($"다음 스테이지 : ", $"stage : {stage}");
-        } 
+        }
 
         Console.WriteLine("");
         Console.WriteLine("0. 마을로");
         if (battlesituation == BattleSituation.BattleWin) { Console.WriteLine("1. 다음 스테이지로!"); }
-            Console.WriteLine("");
+        Console.WriteLine("");
 
         switch (ConsoleUtility.PromptSceneChoice(0, 1))
         {
@@ -192,7 +192,7 @@ public partial class GameManager
                 isWantFight = false;
                 return;
             case 1:
-                if(battlesituation != BattleSituation.BattleWin) 
+                if (battlesituation != BattleSituation.BattleWin)
                 {
                     Console.WriteLine("마을로 복귀 중입니다..");
                     Thread.Sleep(1000);
@@ -208,13 +208,14 @@ public partial class GameManager
         }
     }
 
+    // -1은 int에서 선택을 안했다라는 의미를 나타냄과 idx 선택을 제대로 반영을 했는지 일부러 오류를 일으키기 위해 사용됩니다. 
     private void ParameterCleaning()
     {
         selectIdx = -1;
         skillIdx = -1;
         totalDamage = 0;
         isCritical = false;
-}
+    }
 
     private void BeforeBattle()
     {
@@ -265,15 +266,15 @@ public partial class GameManager
 
             // 몬스터 레벨이 스테이지 이상이어야 등장
             int monsterMaxIdx = Enum.GetNames(typeof(MonsterType)).Length;
-            if(stage < 5)
+            if (stage < 5)
             {
                 monsterMaxIdx = stage;
             }
-            else if(stage < 7)
+            else if (stage < 7)
             {
                 monsterMaxIdx = 6;
             }
-            else if(stage < 10)
+            else if (stage < 10)
             {
                 monsterMaxIdx = 7;
             }
@@ -347,6 +348,55 @@ public partial class GameManager
         }
     }
 
+    // 아이템 사용씬
+    private void ItemSelectScene()
+    {
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! ■");
+
+        Console.WriteLine();
+        Console.WriteLine("■ 체력 포션 ■");
+        Console.WriteLine("포션을 사용하면 체력을 30 회복할 수 있습니다. ");
+        ConsoleUtility.PrintTextHighlights("(남은 포션 : ", player.Potion.ToString(), " )");
+
+        Console.WriteLine("");
+        player.PrintPlayerDescription(bonusHp);
+
+        Console.WriteLine("");
+        Console.WriteLine("1. 사용하기");
+        Console.WriteLine("0. 나가기");
+        Console.WriteLine("");
+
+        while (true)
+        {
+            switch (ConsoleUtility.PromptSceneChoice(0, 1))
+            {
+                case 0:
+                    act = PlayerActSelect.Cancel;
+                    return;
+                case 1:
+                    // 보유 포션이 충분하다면
+                    UseItemText = $"체력을 회복했습니다! {player.Hp}";
+                    if (player.Potion > 0)
+                    {
+                        player.Hp += 30;
+                        if (player.Hp > (100 + bonusHp))
+                        {
+                            player.Hp = 100 + bonusHp;
+                        }
+                        player.Potion--;
+                     UseItemText += $" -> {player.Hp}";
+                        return;
+                    }
+                    // 보유 포션이 부족하다면
+                    Console.WriteLine("포션이 부족합니다.");
+                    continue;
+            }
+        }
+    }
+
+    // 도주 재확인 씬
     private void FleeSelectScene()
     {
         Console.Clear();
@@ -465,7 +515,7 @@ public partial class GameManager
     }
 
 
-    // 전투 관련 씬
+     // 플레이어의 선택 결과 씬
     private void PlayerResultScene()
     {
         Console.Clear();
@@ -473,7 +523,7 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        if (act == PlayerActSelect.Skill && skillIdx != -1) // 스칼 사용을 선택했을 시
+        if (act == PlayerActSelect.Skill && skillIdx != -1) // 스킬 사용을 선택했을 시
         {
             skills.SkillUse(monsters, selectIdx, player, totalDamage, skillIdx, isCritical);
         }
@@ -483,6 +533,12 @@ public partial class GameManager
             player.PrintAttackDescription(target, totalDamage, isCritical);
             Console.WriteLine("");
             target.PrintMonsterChangeDescription(target.Hp, totalDamage);
+        }
+        else if (act == PlayerActSelect.Item) // 템 사용을 선택했을 시
+        {
+            Console.WriteLine("당신은 템 사용에 턴을 소모하였습니다!");
+            Console.WriteLine("");
+            ConsoleUtility.PrintTextHighlights("", UseItemText);
         }
         else { Console.WriteLine("당신은 이미 턴을 소모하셨습니다..."); } // 아이템 사용 또는 도주 실패 시
 

@@ -18,7 +18,8 @@ internal class Skill
     {
         DoubleAttack,
         Slash,
-        RevengeAttack
+        RevengeAttack,
+        MoneyAttack
     }
 
     public void SkillEarn(SkillName idx)  // 스킬 획득입니다. case에 맞게 스킬을 추가하시면 됩니다.
@@ -33,6 +34,9 @@ internal class Skill
                 break;
             case 2:
                 SkillList.Add(new RevengeAttack());
+                break;
+            case 3:
+                SkillList.Add(new MoneyAttack());
                 break;
             default:
                 Console.WriteLine("이 번호의 스킬은 존재하지 않습니다!");
@@ -178,5 +182,70 @@ class RevengeAttack : Skill
 
         Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
+    }
+}
+
+class MoneyAttack : Skill
+{
+    public MoneyAttack()
+    {
+        Name = "동전 던지기";
+        SkillDesc = "사용한 돈만큼 적들에게 공격을 가합니다! (적 선택 이후 취소 불가)\n       100원당 1데미지를 가합니다. (내림 판정)\n       1000원 이상의 금액을 던질 시 전체 공격으로 변합니다."; 
+
+        ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
+    }
+
+    public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
+    {
+        bool checkInt = false ;
+        int value = 0;
+        while (!checkInt) // checkInt가 참이 될 때까지
+        {
+            Console.Clear();
+
+            ConsoleUtility.ShowTitle("■ Battle!! ■");
+            Console.WriteLine();
+            ConsoleUtility.PrintTextHighlights("사용하고자 하는 금액을 입력하세요. 최소 금액 ", "100", "원");
+            Console.WriteLine();
+            ConsoleUtility.PrintTextHighlights("보유 금액 : ", $"{player.Gold}");
+
+            checkInt = int.TryParse(Console.ReadLine(), out value);
+            if (value > player.Gold) { ConsoleUtility.PrintTextHighlights("", "그 정도의 금액을 소지하고 있지 않습니다!"); Thread.Sleep(500); checkInt = false; }
+            else if (!checkInt) { ConsoleUtility.PrintTextHighlights("", "제대로 입력해주세요!"); Thread.Sleep(500); }
+            else if (value < 100) { ConsoleUtility.PrintTextHighlights("최소 금액은 ", "100", "원입니다!"); Thread.Sleep(500); checkInt = false; }
+        }
+
+        value = (int)(Math.Truncate((double)value / 100) * 100); // 내림 메서드
+        player.Gold -= value;
+
+        damage = (int)(value * 0.01);
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        if (damage < 10) { Console.WriteLine($"  {player.Name}이(가) 적에게 동전을 던집니다!"); } // 텍스트도 바뀌게 해두었다. 1damage = 100G
+        else if (damage >= 100) { Console.WriteLine($"  {player.Name}이(가) 적들에게 동전 소나기를 뿌립니다!"); }
+        else if (damage >= 10) { Console.WriteLine($"  {player.Name}이(가) 적들에게 동전 다발을 뿌립니다!"); }
+
+        Console.ResetColor(); // 사용한 금액에 따라 스킬 범위가 달라진다.
+        if (damage < 10) 
+        {
+            Console.WriteLine("");
+            player.PrintAttackDescription(targets[idx], damage, false); // 치명타 판정이 없다.
+
+            Console.WriteLine("");
+            targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
+        }
+        else
+        {
+            foreach (Monster i in targets)
+            {
+                if (i.IsDead == true) { continue; }
+
+                Console.WriteLine("");
+                player.PrintAttackDescription(i, damage, false); // 여기도 주의!
+
+                Console.WriteLine("");
+                i.PrintMonsterChangeDescription(i.Hp, damage);
+            }
+        }
     }
 }

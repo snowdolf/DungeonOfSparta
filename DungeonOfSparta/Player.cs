@@ -115,6 +115,7 @@
             case 6:
                 Atk += 2;
                 Def += 2;
+                skills.SkillEarn(Skill.SkillName.MoneyAttack); // 동전 던지기
                 break;
             default:
                 Console.WriteLine("추후에 업데이트할 예정입니다.");
