@@ -70,6 +70,7 @@ internal class Skill
         {
             for (int i = 0; i < SkillList.Count; i++)
             {
+                Console.WriteLine("");
                 SkillList[i].PrintSkillDescription(true, i + 1);
             }
             Console.WriteLine();
@@ -115,7 +116,11 @@ class DoubleAttack : Skill
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine($"  {player.Name}이(가) 더블어택을 시전합니다!");
         Console.ResetColor();
+
+        Console.WriteLine("");
         player.PrintAttackDescription(targets[idx], damage, critical);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }
@@ -140,9 +145,12 @@ class Slash : Skill
         foreach (Monster i in targets)
         {
             if (i.IsDead == true) { continue; }
+
+            Console.WriteLine("");
             player.PrintAttackDescription(i, damage, critical);
+
+            Console.WriteLine("");
             i.PrintMonsterChangeDescription(i.Hp, damage);
-            
         }
     }
 }
@@ -164,7 +172,11 @@ class RevengeAttack : Skill
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.WriteLine($"  {player.Name}이(가) 복수를 시전합니다!");
         Console.ResetColor();
+
+        Console.WriteLine("");
         player.PrintAttackDescription(targets[idx], damage, critical);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }
