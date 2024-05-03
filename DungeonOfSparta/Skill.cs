@@ -1,5 +1,12 @@
 ﻿using System.Reflection.Emit;
 using System.Xml.Linq;
+public enum SkillName   // 추가되는 대로 넣어주시면 됩니다.
+{
+    DoubleAttack,
+    Slash,
+    RevengeAttack,
+    MoneyAttack
+}
 
 internal class Skill
 {
@@ -7,19 +14,14 @@ internal class Skill
     public string Name { get; set; }
     public string SkillDesc { get; set; }
 
+    public List<SkillName> SkillForSave { get; set; } // 세이브 때문에 추가
+
     public virtual void Active(List<Monster> target, int idx, Player player, int damage, bool critical) { }  // 범용성을 위해서 List<Monster>를 가져왔고, player의 정보 자체를 가져와서 플레이어의 특정 스텟을 데미지 계산에 이용하실 수 있습니다.
 
     public Skill() 
     {
         SkillList = new List<Skill>(); // 참조형 변수들은 아무것도 참조하고 있지 않았을 때 접근 시도를 하면 Null참조 에러 뜹니다.
-    }
-
-    public enum SkillName   // 추가되는 대로 넣어주시면 됩니다.
-    {
-        DoubleAttack,
-        Slash,
-        RevengeAttack,
-        MoneyAttack
+        SkillForSave = new List<SkillName>();
     }
 
     public void SkillEarn(SkillName idx)  // 스킬 획득입니다. case에 맞게 스킬을 추가하시면 됩니다.
@@ -28,15 +30,19 @@ internal class Skill
         {
             case 0:
                 SkillList.Add(new DoubleAttack());
+                SkillForSave.Add(SkillName.DoubleAttack);
                 break;
             case 1:
                 SkillList.Add(new Slash());
+                SkillForSave.Add(SkillName.Slash);
                 break;
             case 2:
                 SkillList.Add(new RevengeAttack());
+                SkillForSave.Add(SkillName.RevengeAttack);
                 break;
             case 3:
                 SkillList.Add(new MoneyAttack());
+                SkillForSave.Add(SkillName.MoneyAttack);
                 break;
             default:
                 Console.WriteLine("이 번호의 스킬은 존재하지 않습니다!");
@@ -112,7 +118,6 @@ class DoubleAttack : Skill
 
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
-
     public override void Active(List<Monster> targets, int idx , Player player, int damage, bool critical)
     {
         damage = (int)(damage * 2 * 0.8);
@@ -138,7 +143,6 @@ class Slash : Skill
 
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
-
     public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         damage = (int)(damage * 0.8);
@@ -168,7 +172,6 @@ class RevengeAttack : Skill
 
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
-
     public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         damage = (int)((damage * 0.5) + ((100 - player.Hp) * 0.5));
@@ -194,7 +197,6 @@ class MoneyAttack : Skill
 
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
-
     public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         bool checkInt = false ;

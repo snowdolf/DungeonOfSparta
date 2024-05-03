@@ -67,6 +67,22 @@
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
     }
 
+    public void EarnGold(int stage, List<Monster> monsters)
+    {
+        Console.WriteLine();
+        stage *= 250; // 스테이지가 높을수록 보상 증가
+        int monsterLoot = 0;
+        foreach (Monster monster in monsters)
+        {
+            monsterLoot += 50 * (int)monster.MonstersType; // 몬스터 등급이 높을수록 보상 증가
+        }
+        int totalRewards = stage + monsterLoot;
+        int previousGold = Gold;
+        Gold += totalRewards;
+        ConsoleUtility.PrintTextHighlights("", $"{totalRewards}", "G 만큼의 금액을 획득하셨습니다!");
+        ConsoleUtility.PrintTextHighlights("보유 금액 : ", $"{previousGold} - > {Gold}", "G");
+    }
+
     public void EarnExp(int exp, Skill skills) // 경험치 획득 메서드입니다.
     {
         Console.Write($"{exp}만큼의 경험치를 획득했습니다! ");
@@ -97,12 +113,12 @@
             case 2:
                 Atk += 2;
                 Def += 2;
-                skills.SkillEarn(Skill.SkillName.Slash); // 휩쓸기
+                skills.SkillEarn(SkillName.Slash); // 휩쓸기
                 break;
             case 3:
                 Atk += 2;
                 Def += 2;
-                skills.SkillEarn(Skill.SkillName.RevengeAttack); // 복수
+                skills.SkillEarn(SkillName.RevengeAttack); // 복수
                 break;
             case 4:
                 Atk += 2;
@@ -115,7 +131,7 @@
             case 6:
                 Atk += 2;
                 Def += 2;
-                skills.SkillEarn(Skill.SkillName.MoneyAttack); // 동전 던지기
+                skills.SkillEarn(SkillName.MoneyAttack); // 동전 던지기
                 break;
             default:
                 Console.WriteLine("추후에 업데이트할 예정입니다.");

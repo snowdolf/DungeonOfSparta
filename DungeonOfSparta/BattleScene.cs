@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Xml.Linq;
 
@@ -177,7 +178,7 @@ public partial class GameManager
         {
             Console.WriteLine("계속 진행하시겠습니까?");
             stage++;
-            ConsoleUtility.PrintTextHighlights($"다음 스테이지 : ", $"stage : {stage}");
+            ConsoleUtility.PrintTextHighlights($"다음 스테이지 : ", $"stage {stage}");
         }
 
         Console.WriteLine("");
@@ -619,6 +620,7 @@ public partial class GameManager
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
             player.EarnExp(monsters.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
+            player.EarnGold(stage, monsters);
             player.CheckUnlockStage(stage);
         }
         else if (battlesituation == BattleSituation.BattleFlee)
