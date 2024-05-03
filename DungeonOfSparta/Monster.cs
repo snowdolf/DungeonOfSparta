@@ -5,14 +5,16 @@
     public int Hp { get; set; }
     public int Atk { get; }
     public bool IsDead { get; set; }
+    public MonsterType MonstersType { get; }
 
-    public Monster(string name, int level, int hp, int atk)
+    public Monster(string name, int level, int hp, int atk, MonsterType monstersType)
     {
         Name = name;
         Level = level;
         Hp = hp;
         Atk = atk;
         IsDead = false;
+        MonstersType = monstersType;
     }
 
     // BattleScene에서 monster 정보 출력할 때 사용
