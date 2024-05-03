@@ -25,19 +25,24 @@ public partial class GameManager
             Console.WriteLine($"{player.Name} 폴더를 만들었습니다.");
         }
 
-        // Player player;
+        // Player player
         string filePath = Path.Combine(directoryPath, "player.json");
         string json = JsonConvert.SerializeObject(player, Formatting.Indented);
         File.WriteAllText(filePath, json);
 
-        // List<Item> inventory;
+        // List<Item> inventory
         filePath = Path.Combine(directoryPath, "inventory.json");
         json = JsonConvert.SerializeObject(inventory, Formatting.Indented);
         File.WriteAllText(filePath, json);
 
-        // List<Item> storeInventory;
+        // List<Item> storeInventory
         filePath = Path.Combine(directoryPath, "storeInventory.json");
         json = JsonConvert.SerializeObject(storeInventory, Formatting.Indented);
+        File.WriteAllText(filePath, json);
+
+        // List<Quest> questList
+        filePath = Path.Combine(directoryPath, "questList.json");
+        json = JsonConvert.SerializeObject(questList, Formatting.Indented);
         File.WriteAllText(filePath, json);
 
         Console.WriteLine($"{player.Name} 데이터 저장을 완료했습니다");
@@ -58,24 +63,29 @@ public partial class GameManager
             return false;
         }
 
-        // Player player;
+        // Player player
         string filePath = Path.Combine(directoryPath, "player.json");
         string json = File.ReadAllText(filePath);
         player = JsonConvert.DeserializeObject<Player>(json);
 
-        // List<Item> inventory;
+        // List<Item> inventory
         filePath = Path.Combine(directoryPath, "inventory.json");
         json = File.ReadAllText(filePath);
         inventory = JsonConvert.DeserializeObject<List<Item>>(json);
 
-        // List<Item> storeInventory;
+        // List<Item> storeInventory
         filePath = Path.Combine(directoryPath, "storeInventory.json");
         json = File.ReadAllText(filePath);
         storeInventory = JsonConvert.DeserializeObject<List<Item>>(json);
 
+        // List<Quest> questList
+        filePath = Path.Combine(directoryPath, "questList.json");
+        json = File.ReadAllText(filePath);
+        questList = JsonConvert.DeserializeObject<List<Quest>>(json);
+
         // List<Skill> SkillList에서 Active 저장이 안됨 ㅜ
         // 플레이어 레벨에 따라 일일히 스킬 리스트에 저장
-        if(player.Level >= 2)
+        if (player.Level >= 2)
         {
             skills.SkillEarn(Skill.SkillName.Slash); // 휩쓸기
         }

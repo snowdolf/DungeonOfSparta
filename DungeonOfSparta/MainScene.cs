@@ -30,16 +30,11 @@
         Console.WriteLine("6. 퀘스트");
         Console.WriteLine("");
 
-
-        int choice = ConsoleUtility.PromptSceneChoice(1, 6);
-
-
         Console.WriteLine("");
         Console.WriteLine("0. 저장 및 나가기");
         Console.WriteLine("");
 
-        
-
+        int choice = ConsoleUtility.PromptSceneChoice(0, 6);
 
         // 3. 선택한 결과에 따라 보내줌
         switch (choice)

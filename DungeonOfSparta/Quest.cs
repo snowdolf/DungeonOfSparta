@@ -10,7 +10,7 @@ public partial class GameManager
     {
         questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0,3,300));
         questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0, 6, 500));
-        questList.Add(new Quest("공허충잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5, 0 , 2, 1000));
+        questList.Add(new Quest("전사미니언잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5, 0 , 2, 1000));
     }
 
     public void MonsterCountForQuest()
