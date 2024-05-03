@@ -132,4 +132,16 @@
             ConsoleUtility.PrintTextHighlights("", $"{++MaxStage}");
         }
     }
+
+    // 장착된 아이템 해제하거나 판매할 때 최대체력 넘어가는 버그
+    // 120/120 -> 120/100
+    // player.CheckHpError(inventory) <- 에러 예상 구역에 추가함
+    public void CheckHpError(List<Item> inventory)
+    {
+        int bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+        if (Hp > 100 +  bonusHp)
+        {
+            Hp = 100 + bonusHp;
+        }
+    }
 }

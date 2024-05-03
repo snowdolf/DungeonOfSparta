@@ -128,6 +128,7 @@
                 player.Gold += inventory[keyInput - 1].Price * 85 / 100;
                 inventory[keyInput - 1].Sell();
                 inventory.Remove(inventory[keyInput - 1]);
+                player.CheckHpError(inventory);
                 SellScene("판매를 완료했습니다.");
                 break;
         }

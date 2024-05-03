@@ -65,6 +65,7 @@
                     }
                 }
                 inventory[KeyInput - 1].ToggleEquipStatus();
+                player.CheckHpError(inventory);
                 EquipScene();
                 break;
         }
