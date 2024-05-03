@@ -6,13 +6,13 @@
     public int Atk { get; }
     public bool IsDead { get; set; }
 
-    public Monster(string name, int level, int hp, int atk, bool isDead = false)
+    public Monster(string name, int level, int hp, int atk)
     {
         Name = name;
         Level = level;
         Hp = hp;
         Atk = atk;
-        IsDead = isDead;
+        IsDead = false;
     }
 
     // BattleScene에서 monster 정보 출력할 때 사용
@@ -65,11 +65,13 @@
     }
 
     // BattleScene에서 monster가 player를 공격할 때 사용
-    public void PrintAttackDescription(Player player)
+    public void PrintAttackDescription(Player player, int damage)
     {
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), "", false);
         Console.WriteLine($" {Name} 의 공격!");
+
+        Console.WriteLine("");
         Console.Write($"{player.Name} 을(를) 맞췄습니다. ");
-        ConsoleUtility.PrintTextHighlights("[데미지 : ", Atk.ToString(), "]");
+        ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
     }
 }

@@ -7,7 +7,7 @@ internal class Skill
     public string Name { get; set; }
     public string SkillDesc { get; set; }
 
-    public virtual void Active(List<Monster> target, int idx, Player player, int damage) { }  // 범용성을 위해서 List<Monster>를 가져왔고, player의 정보 자체를 가져와서 플레이어의 특정 스텟을 데미지 계산에 이용하실 수 있습니다.
+    public virtual void Active(List<Monster> target, int idx, Player player, int damage, bool critical) { }  // 범용성을 위해서 List<Monster>를 가져왔고, player의 정보 자체를 가져와서 플레이어의 특정 스텟을 데미지 계산에 이용하실 수 있습니다.
 
     public Skill() 
     {
@@ -70,6 +70,7 @@ internal class Skill
         {
             for (int i = 0; i < SkillList.Count; i++)
             {
+                Console.WriteLine("");
                 SkillList[i].PrintSkillDescription(true, i + 1);
             }
             Console.WriteLine();
@@ -77,10 +78,10 @@ internal class Skill
         }
     }
 
-    public void SkillUse(List<Monster> target, int idx, Player player, int damage, int skillIdx)    // 스킬 사용 (idx에 유의)
+    public void SkillUse(List<Monster> target, int idx, Player player, int damage, int skillIdx, bool critical)    // 스킬 사용 (idx에 유의)
     {
         skillIdx -= 1;
-        SkillList[skillIdx].Active(target, idx, player, damage);
+        SkillList[skillIdx].Active(target, idx, player, damage, critical);
     }
 
     public void PrintSkillDescription(bool withNumber = false, int idx = 0) // 스킬 출력
@@ -108,12 +109,18 @@ class DoubleAttack : Skill
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
 
-    public override void Active(List<Monster> targets, int idx , Player player, int damage)
+    public override void Active(List<Monster> targets, int idx , Player player, int damage, bool critical)
     {
-        damage = (int)(damage * 2 * 0.8);  
+        damage = (int)(damage * 2 * 0.8);
 
-        Console.WriteLine($"{player.Name}가 더블어택을 시전합니다!");
-        player.PrintAttackDescription(targets[idx], damage);
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.WriteLine($"  {player.Name}이(가) 더블어택을 시전합니다!");
+        Console.ResetColor();
+
+        Console.WriteLine("");
+        player.PrintAttackDescription(targets[idx], damage, critical);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }
@@ -128,17 +135,22 @@ class Slash : Skill
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
 
-    public override void Active(List<Monster> targets, int idx, Player player, int damage)
+    public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         damage = (int)(damage * 0.8);
 
-        Console.WriteLine($"{player.Name}가 휩쓸기를 시전합니다!");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"  {player.Name}이(가) 휩쓸기를 시전합니다!");
+        Console.ResetColor();
         foreach (Monster i in targets)
         {
             if (i.IsDead == true) { continue; }
-            player.PrintAttackDescription(i, damage);
+
+            Console.WriteLine("");
+            player.PrintAttackDescription(i, damage, critical);
+
+            Console.WriteLine("");
             i.PrintMonsterChangeDescription(i.Hp, damage);
-            
         }
     }
 }
@@ -153,12 +165,18 @@ class RevengeAttack : Skill
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
     }
 
-    public override void Active(List<Monster> targets, int idx, Player player, int damage)
+    public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         damage = (int)((damage * 0.5) + ((100 - player.Hp) * 0.5));
 
-        Console.WriteLine($"{player.Name}가 복수를 시전합니다!");
-        player.PrintAttackDescription(targets[idx], damage);
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine($"  {player.Name}이(가) 복수를 시전합니다!");
+        Console.ResetColor();
+
+        Console.WriteLine("");
+        player.PrintAttackDescription(targets[idx], damage, critical);
+
+        Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
     }
 }

@@ -15,7 +15,7 @@
 
     private void InitializeGame()
     {
-        player = new Player("Jiwon", "Programmer", 1, 10, 5, 100, 15000, 3);
+        player = new Player("Jiwon", "Programmer", 1, 10, 5, 100, 10000, 3);
 
         inventory = new List<Item>();
 
@@ -43,7 +43,7 @@
     {
         Console.Clear();
         ConsoleUtility.PrintGameHeader();
-        MainScene();
+        MakePlayerNameScene();
     }
 }
 
