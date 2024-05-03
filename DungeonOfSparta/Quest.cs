@@ -1,12 +1,5 @@
 ﻿using System;
 
-enum QuestRewardType
-{
-    Reward_Item,
-    Reward_Gold,
-    Reward_Potion
-}
-
 
 public partial class GameManager
 {
@@ -15,9 +8,9 @@ public partial class GameManager
     
     public void QuestManager()
     {
-        questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0));
-        questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0));
-        questList.Add(new Quest("공허충잡기","공허충을 잡아라", MonsterType.VoidSwarm, 5,0));
+        questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0,3,300,monsters));
+        questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0,6,500, monsters));
+        questList.Add(new Quest("공허충잡기","공허충을 잡아라", MonsterType.VoidSwarm, 5,0,2,1000, monsters));
     }
 
     public void PrintQuestInfo(int idx)
@@ -25,14 +18,18 @@ public partial class GameManager
         Console.WriteLine(questList[idx].Title);
         Console.WriteLine(questList[idx].Description);
         Console.WriteLine($"{questList[idx].MonsterType} - {questList[idx].MonsterCount}/{questList[idx].MonsterKill}");
+        //Console.WriteLine(questList[idx].Monsters[idx].Name);
+        Console.WriteLine(" ");
+        Console.WriteLine(" - Reward - ");
+        Console.WriteLine(" ");
 
-        Console.Write("Reward - ");
-        Console.WriteLine(storeInventory[3].Name);
+        Console.WriteLine(storeInventory[questList[idx].RewardItem].Name);
+        Console.WriteLine($"{questList[idx].RewardGold}G");
     }
 
     public void PrintQuestTitle(int idx)
     {
-        if (questList[idx].IsCompleted)
+        if (questList[idx].IsCompleted&&!questList[idx].IsAccept)
         {
             Console.WriteLine($"{idx+1} - {questList[idx].Title}[완료]");
         }
@@ -133,6 +130,8 @@ public partial class GameManager
                 case 1:
                     QuestCurrectScene(selectQuest);
                     questList[selectQuest].IsAccept = false;
+                    player.Gold += questList[selectQuest].RewardGold;
+                    storeInventory[questList[selectQuest].RewardItem].Purchase();
                     break;
                 case 0:
                     QuestSelectScene();
@@ -157,24 +156,35 @@ public partial class GameManager
 
 internal class Quest
 {
-    public MonsterType MonsterType { get; }  
+    public MonsterType MonsterType { get; }
+
+    public List<Monster> Monsters { get; }
     public string Title { get;}
     public string Description { get; }
 
     public int MonsterKill { get; }
     public int MonsterCount { get; set; }
+    public int RewardItem { get; }
+    public int RewardGold { get; }
 
     public bool IsCompleted {  get; set; }
     public bool IsAccept {  get; set; }
 
+    
 
-    public Quest(string title, string description,MonsterType monsterType,int monsterKill,int monsterCount)
+    public Quest(string title, string description,MonsterType monsterType,int monsterKill,int monsterCount, int rewardItem, int rewardGold,List<Monster> monsters)
     {
         Title = title;
         Description = description;
+
+        Monsters = monsters;
         MonsterType = monsterType;
         MonsterKill = monsterKill;
         MonsterCount = monsterCount;
+
+        RewardItem = rewardItem;
+        RewardGold = rewardGold;
+
         IsCompleted = false;
         IsAccept = false;
     }
