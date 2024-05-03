@@ -19,6 +19,7 @@ public partial class GameManager
     private List<Monster> monsters;
 
     Random random = new Random();
+
     int randomNumber;
 
     // 던전 입장 전 player 체력
@@ -211,7 +212,7 @@ public partial class GameManager
     // -1은 int에서 선택을 안했다라는 의미를 나타냄과 idx 선택을 제대로 반영을 했는지 일부러 오류를 일으키기 위해 사용됩니다. 
     private void ParameterCleaning()
     {
-        selectIdx = -1;
+        selectIdx = -1;      
         skillIdx = -1;
         totalDamage = 0;
         isCritical = false;
@@ -284,28 +285,28 @@ public partial class GameManager
             switch (monsterType)    // 이거 나중에 몬스터로 다 챙겨가자.
             {
                 case MonsterType.Minion:
-                    monsters.Add(new Monster("미니언", 1, 15, 5));
+                    monsters.Add(new Monster("미니언", 1, 15, 5,MonsterType.Minion));
                     break;
                 case MonsterType.MeleeMinion:
-                    monsters.Add(new Monster("전사미니언", 2, 25, 5));
+                    monsters.Add(new Monster("전사미니언", 2, 25, 5, MonsterType.MeleeMinion));
                     break;
                 case MonsterType.SiegeMinion:
-                    monsters.Add(new Monster("대포미니언", 3, 25, 10));
+                    monsters.Add(new Monster("대포미니언", 3, 25, 10, MonsterType.SiegeMinion));
                     break;
                 case MonsterType.SuperMinion:
-                    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
+                    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8, MonsterType.SuperMinion));
                     break;
                 case MonsterType.BlueSentinel:
-                    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
+                    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15, MonsterType.BlueSentinel));
                     break;
                 case MonsterType.RedBrambleback:
-                    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
+                    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15,MonsterType.RedBrambleback));
                     break;
                 case MonsterType.Dragon:
-                    monsters.Add(new Monster("드래곤", 7, 70, 20));
+                    monsters.Add(new Monster("드래곤", 7, 70, 20,MonsterType.Dragon));
                     break;
                 case MonsterType.BaronNashor:
-                    monsters.Add(new Monster("내셔남작", 10, 100, 30));
+                    monsters.Add(new Monster("내셔남작", 10, 100, 30,MonsterType.BaronNashor));
                     break;
             }
         }
@@ -526,6 +527,7 @@ public partial class GameManager
         if (act == PlayerActSelect.Skill && skillIdx != -1) // 스킬 사용을 선택했을 시
         {
             skills.SkillUse(monsters, selectIdx, player, totalDamage, skillIdx, isCritical);
+            MonsterCountForQuest();
         }
         else if (act == PlayerActSelect.Attack) // 공격 사용을 선택했을 시
         {
@@ -533,6 +535,7 @@ public partial class GameManager
             player.PrintAttackDescription(target, totalDamage, isCritical);
             Console.WriteLine("");
             target.PrintMonsterChangeDescription(target.Hp, totalDamage);
+            MonsterCountForQuest();
         }
         else if (act == PlayerActSelect.Item) // 템 사용을 선택했을 시
         {
@@ -541,6 +544,10 @@ public partial class GameManager
             ConsoleUtility.PrintTextHighlights("", UseItemText);
         }
         else { Console.WriteLine("당신은 이미 턴을 소모하셨습니다..."); } // 아이템 사용 또는 도주 실패 시
+
+        
+
+
 
         Console.WriteLine("");
         Console.WriteLine("계속 진행하려면 엔터를 눌러주세요."); // 바꾼 이유. 유저 입장에서는 2번 눌러줘야해서 귀찮다

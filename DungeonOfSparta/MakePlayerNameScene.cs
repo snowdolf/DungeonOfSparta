@@ -15,6 +15,17 @@
 
         player.Name = inputName;
 
-        SelectPlayerJobScene();
+        if(LoadDataFromJson() == true)
+        {
+            // 세이브 데이터 존재
+            MainScene($"{player.Name} 데이터를 로딩합니다.");
+        }
+        else
+        {
+            // 세이브 데이터 존재x
+            // 데이터 새로 생성
+
+            SelectPlayerJobScene();
+        }
     }
 }
