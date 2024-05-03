@@ -140,7 +140,7 @@ class Slash : Skill
         damage = (int)(damage * 0.8);
 
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine($"  {player.Name}가 휩쓸기를 시전합니다!");
+        Console.WriteLine($"  {player.Name}이(가) 휩쓸기를 시전합니다!");
         Console.ResetColor();
         foreach (Monster i in targets)
         {

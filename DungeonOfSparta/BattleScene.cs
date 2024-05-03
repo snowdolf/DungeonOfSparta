@@ -61,16 +61,26 @@ public partial class GameManager
     // 스테이지 선택
     int stage;
 
+    // 재귀 호출 피하기
+    bool isWantFight;
+
     private void BattleScene()
     {
-        battlesituation = BattleSituation.Peace;
-
+        isWantFight = false;
         StageSelectScene();
+        while (isWantFight)
+        {
+            BattleCycle();
+        } 
+
+        MainScene();
     }
 
       // 스테이지를 선택하는 씬
     private void StageSelectScene()
     {
+        battlesituation = BattleSituation.Peace;
+
         Console.Clear();
 
         ConsoleUtility.ShowTitle("■ Battle!! - Stage Select ■");
@@ -96,11 +106,11 @@ public partial class GameManager
         switch (keyInput)
         {
             case 0:
-                MainScene();
+                isWantFight = false;
                 break;
             default:
                 stage = keyInput;
-                BattleCycle();
+                isWantFight = true;
                 break;
         }
     }
@@ -143,7 +153,7 @@ public partial class GameManager
                     continue;
             }
             if (act == PlayerActSelect.Cancel) { continue; }    // 캔슬! 반복문 처음부터
-            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill)  // 스킬을 선택했다면 스킬 선택지 열기
+            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill) 
             { 
                 EnemySelectScene(); if (act == PlayerActSelect.Cancel) { continue; } // 캔슬! 반복문 처음부터
             }
@@ -161,14 +171,37 @@ public partial class GameManager
         FinalBattleResultScene();
 
         Console.WriteLine("");
-        Console.WriteLine("0. 다음");
-        Console.WriteLine("");
+        
+        if (battlesituation == BattleSituation.BattleWin)
+        {
+            Console.WriteLine("계속 진행하시겠습니까?");
+            stage++;
+            ConsoleUtility.PrintTextHighlights($"다음 스테이지 : ", $"stage : {stage}");
+        } 
 
-        switch (ConsoleUtility.PromptSceneChoice(0, 0))
+        Console.WriteLine("");
+        Console.WriteLine("0. 마을로");
+        if (battlesituation == BattleSituation.BattleWin) { Console.WriteLine("1. 다음 스테이지로!"); }
+            Console.WriteLine("");
+
+        switch (ConsoleUtility.PromptSceneChoice(0, 1))
         {
             case 0:
                 Console.WriteLine("마을로 복귀 중입니다..");
                 Thread.Sleep(1000);
+                isWantFight = false;
+                return;
+            case 1:
+                if(battlesituation != BattleSituation.BattleWin) 
+                {
+                    Console.WriteLine("마을로 복귀 중입니다..");
+                    Thread.Sleep(1000);
+                    isWantFight = false;
+                    return;
+                }
+                Console.WriteLine("다음 스테이지로 넘어가는 중...");
+                Thread.Sleep(1000);
+                isWantFight = true;
                 return;
             default:
                 break;
@@ -185,7 +218,7 @@ public partial class GameManager
 
     private void BeforeBattle()
     {
-        MonsterSpawn();
+        MonsterSpawn(); // 몬스터 스폰
 
         Console.Clear();
 
@@ -373,24 +406,13 @@ public partial class GameManager
                 act = PlayerActSelect.Cancel;
                 break;
             default:
-                MyBattlePhaseSceneSkill(keyInput);
                 break;
         }   // 스킬 선택
     }
 
+
     // 적 선택 씬
     private void EnemySelectScene(string? prompt = null)
-    {
-        if (prompt != null)
-        {
-            // 1초간 메시지를 띄운 다음에 다시 진행
-            Console.Clear();
-            ConsoleUtility.ShowTitle(prompt);
-            Thread.Sleep(300);
-        }
-    }
-
-    private void MyBattlePhaseSceneSkill(int skillIdx, string? prompt = null)
     {
         if (prompt != null)
         {
@@ -441,6 +463,8 @@ public partial class GameManager
             }
         }
     }
+
+
     // 전투 관련 씬
     private void PlayerResultScene()
     {
@@ -491,10 +515,16 @@ public partial class GameManager
         }
         else
         {
+            int damage = enemy.Atk - (player.Def + bonusDef) / 5;
+            if (damage <= 0)
+            {
+                damage = 1;
+            }
+
             Console.WriteLine("");
-            enemy.PrintAttackDescription(player);
+            enemy.PrintAttackDescription(player, damage);
             Console.WriteLine("");
-            player.PrintPlayerChangeDescription(player.Hp, enemy.Atk);
+            player.PrintPlayerChangeDescription(player.Hp, damage);
         }
 
         Console.WriteLine("");
