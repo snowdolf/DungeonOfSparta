@@ -3,27 +3,27 @@
 
 public partial class GameManager
 {
-    private List<Monster> monsters = new List<Monster>();
+    //private List<Monster> monsters = new List<Monster>();
     List<Quest> questList = new List<Quest>();
     
     public void QuestManager()
     {
-        questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0,3,300,monsters));
-        questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0,6,500, monsters));
-        questList.Add(new Quest("공허충잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5,0,2,1000, monsters));
+        questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0,3,300));
+        questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0, 6, 500));
+        questList.Add(new Quest("공허충잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5, 0 , 2, 1000));
     }
 
-    public void CreateMonster()
-    {
-        monsters.Add(new Monster("미니언", 1, 15, 5));
-        monsters.Add(new Monster("전사미니언", 2, 25, 5));
-        monsters.Add(new Monster("대포미니언", 3, 25, 10));
-        monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
-        monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
-        monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
-        monsters.Add(new Monster("드래곤", 7, 70, 20));
-        monsters.Add(new Monster("내셔남작", 10, 100, 30));
-    }
+    //public void CreateMonster()
+    //{
+    //    monsters.Add(new Monster("미니언", 1, 15, 5));
+    //    monsters.Add(new Monster("전사미니언", 2, 25, 5));
+    //    monsters.Add(new Monster("대포미니언", 3, 25, 10));
+    //    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
+    //    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
+    //    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
+    //    monsters.Add(new Monster("드래곤", 7, 70, 20));
+    //    monsters.Add(new Monster("내셔남작", 10, 100, 30));
+    //}
 
 
     public void PrintQuestInfo(int idx)
@@ -87,6 +87,11 @@ public partial class GameManager
         Console.Clear();
 
         ConsoleUtility.ShowTitle("▣ Quest ▣");
+
+        if (questList[selectQuest].MonsterKill <= questList[selectIdx].MonsterCount && questList[selectIdx].IsAccept==true)
+        {
+            questList[selectIdx].IsCompleted = true;
+        }
         if (questList[selectQuest].IsAccept == true)
         {
             Console.WriteLine(" ");
@@ -142,9 +147,11 @@ public partial class GameManager
             {
                 case 1:
                     QuestCurrectScene(selectQuest);
-                    questList[selectQuest].IsAccept = false;
-                    player.Gold += questList[selectQuest].RewardGold;
-                    storeInventory[questList[selectQuest].RewardItem].Purchase();
+                    
+                        questList[selectQuest].IsAccept = false;
+                        player.Gold += questList[selectQuest].RewardGold;
+                        storeInventory[questList[selectQuest].RewardItem].Purchase();
+                    
                     break;
                 case 0:
                     QuestSelectScene();
@@ -169,9 +176,9 @@ public partial class GameManager
 
 internal class Quest
 {
-    public MonsterType MonsterType { get; }
 
-    public List<Monster> Monsters { get; }
+    public MonsterType MonsterType { get; }
+    
     public string Title { get;}
     public string Description { get; }
 
@@ -185,12 +192,12 @@ internal class Quest
 
     
 
-    public Quest(string title, string description,MonsterType monsterType,int monsterKill,int monsterCount, int rewardItem, int rewardGold,List<Monster> monsters)
+    public Quest(string title, string description,MonsterType monsterType,int monsterKill,int monsterCount, int rewardItem, int rewardGold)
     {
         Title = title;
         Description = description;
 
-        Monsters = monsters;
+        
         MonsterType = monsterType;
         MonsterKill = monsterKill;
         MonsterCount = monsterCount;
