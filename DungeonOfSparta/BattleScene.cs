@@ -15,7 +15,7 @@ enum MonsterType
 
 public partial class GameManager
 {
-    private List<Monster> monsters;
+    private List<Monster> randomMonster;
 
     Random random = new Random();
     int randomNumber;
@@ -160,7 +160,7 @@ public partial class GameManager
             // 플레이어의 행동 결과!
             PlayerResultScene(); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
 
-            foreach (Monster monster in monsters)
+            foreach (Monster monster in randomMonster)
             {
                 if (monster.IsDead == true) { continue; }   // 죽은 적은 아무 행동도 하지 않습니다.
                 EnemyBattleResultScene(monster); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
@@ -254,7 +254,7 @@ public partial class GameManager
     {
         initialPlayerHp = player.Hp;
 
-        monsters = new List<Monster>();
+        randomMonster = new List<Monster>();
 
         // 높은 스테이지일수록 더 많은 몬스터 등장 
         randomNumber = random.Next(1, 4 + stage / 3);   // randomNumber = 1 ~ (3 + stage / 3)
@@ -283,28 +283,28 @@ public partial class GameManager
             switch (monsterType)    // 이거 나중에 몬스터로 다 챙겨가자.
             {
                 case MonsterType.Minion:
-                    monsters.Add(new Monster("미니언", 1, 15, 5));
+                    randomMonster.Add(monsters[0]);
                     break;
                 case MonsterType.MeleeMinion:
-                    monsters.Add(new Monster("전사미니언", 2, 25, 5));
+                    randomMonster.Add(monsters[1]);
                     break;
                 case MonsterType.SiegeMinion:
-                    monsters.Add(new Monster("대포미니언", 3, 25, 10));
+                    randomMonster.Add(monsters[2]);
                     break;
                 case MonsterType.SuperMinion:
-                    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
+                    randomMonster.Add(monsters[3]);
                     break;
                 case MonsterType.BlueSentinel:
-                    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
+                    randomMonster.Add(monsters[4]);
                     break;
                 case MonsterType.RedBrambleback:
-                    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
+                    randomMonster.Add(monsters[5]);
                     break;
                 case MonsterType.Dragon:
-                    monsters.Add(new Monster("드래곤", 7, 70, 20));
+                    randomMonster.Add(monsters[6]);
                     break;
                 case MonsterType.BaronNashor:
-                    monsters.Add(new Monster("내셔남작", 10, 100, 30));
+                    randomMonster.Add(monsters[7]);
                     break;
             }
         }
@@ -427,9 +427,9 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        for (int i = 0; i < monsters.Count; i++)
+        for (int i = 0; i < randomMonster.Count; i++)
         {
-            monsters[i].PrintMonsterDescription(true, i + 1);
+            randomMonster[i].PrintMonsterDescription(true, i + 1);
         }
 
         Console.WriteLine("");
@@ -449,7 +449,7 @@ public partial class GameManager
                     act = PlayerActSelect.Cancel;
                     return;
                 default:
-                    if (monsters[selectIdx - 1].IsDead)
+                    if (randomMonster[selectIdx - 1].IsDead)
                     {
                         EnemySelectScene("이미 사망한 적입니다!");
                         return;
@@ -475,11 +475,11 @@ public partial class GameManager
         Console.WriteLine("");
         if (act == PlayerActSelect.Skill && skillIdx != -1) // 스칼 사용을 선택했을 시
         {
-            skills.SkillUse(monsters, selectIdx, player, totalDamage, skillIdx, isCritical);
+            skills.SkillUse(randomMonster, selectIdx, player, totalDamage, skillIdx, isCritical);
         }
         else if (act == PlayerActSelect.Attack) // 공격 사용을 선택했을 시
         {
-            Monster target = monsters[selectIdx];
+            Monster target = randomMonster[selectIdx];
             player.PrintAttackDescription(target, totalDamage, isCritical);
             Console.WriteLine("");
             target.PrintMonsterChangeDescription(target.Hp, totalDamage);
@@ -491,7 +491,7 @@ public partial class GameManager
         Console.WriteLine("");
 
         Console.ReadLine();
-        if (monsters.All(monster => monster.IsDead))
+        if (randomMonster.All(monster => monster.IsDead))
         {
             // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
             battlesituation = BattleSituation.BattleWin;
@@ -554,8 +554,8 @@ public partial class GameManager
             Console.WriteLine("Victory");
             Console.ResetColor();
             Console.WriteLine("");
-            ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
-            player.EarnExp(monsters.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
+            ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", randomMonster.Count.ToString(), "마리를 잡았습니다.");
+            player.EarnExp(randomMonster.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
             player.CheckUnlockStage(stage);
         }
         else if (battlesituation == BattleSituation.BattleFlee)
@@ -581,9 +581,9 @@ public partial class GameManager
     private void MonsterAndPlayerStatus()
     {
         Console.WriteLine("");
-        for (int i = 0; i < monsters.Count; i++)
+        for (int i = 0; i < randomMonster.Count; i++)
         {
-            monsters[i].PrintMonsterDescription();
+            randomMonster[i].PrintMonsterDescription();
         }
 
         Console.WriteLine("");

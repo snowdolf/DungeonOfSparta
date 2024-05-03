@@ -20,21 +20,19 @@
         Console.WriteLine("3. 상     점");
         Console.WriteLine("4. 전투 시작");
         Console.WriteLine("5. 회복 아이템");
-<<<<<<< HEAD
         Console.WriteLine("6. 퀘스트");
         Console.WriteLine("");
 
-        // 2. 선택한 결과를 검증함
+
         int choice = ConsoleUtility.PromptSceneChoice(1, 6);
-=======
+
 
         Console.WriteLine("");
         Console.WriteLine("0. 저장 및 나가기");
         Console.WriteLine("");
 
-        // 2. 선택한 결과를 검증함
-        int choice = ConsoleUtility.PromptSceneChoice(0, 5);
->>>>>>> Dev
+        
+
 
         // 3. 선택한 결과에 따라 보내줌
         switch (choice)

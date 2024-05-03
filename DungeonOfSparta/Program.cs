@@ -9,6 +9,7 @@
 
     public GameManager()
     {
+        CreateMonster();
         InitializeGame();
         QuestManager();
     }

@@ -3,15 +3,28 @@
 
 public partial class GameManager
 {
-    
+    private List<Monster> monsters = new List<Monster>();
     List<Quest> questList = new List<Quest>();
     
     public void QuestManager()
     {
         questList.Add(new Quest("미니언잡기","미니언을 잡아라",MonsterType.Minion,5, 0,3,300,monsters));
         questList.Add(new Quest("대포미니언잡기","대포미니언을 잡아라", MonsterType.SiegeMinion, 5, 0,6,500, monsters));
-        questList.Add(new Quest("공허충잡기","공허충을 잡아라", MonsterType.VoidSwarm, 5,0,2,1000, monsters));
+        questList.Add(new Quest("공허충잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5,0,2,1000, monsters));
     }
+
+    public void CreateMonster()
+    {
+        monsters.Add(new Monster("미니언", 1, 15, 5));
+        monsters.Add(new Monster("전사미니언", 2, 25, 5));
+        monsters.Add(new Monster("대포미니언", 3, 25, 10));
+        monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
+        monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
+        monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
+        monsters.Add(new Monster("드래곤", 7, 70, 20));
+        monsters.Add(new Monster("내셔남작", 10, 100, 30));
+    }
+
 
     public void PrintQuestInfo(int idx)
     {
@@ -192,40 +205,7 @@ internal class Quest
     
 
 
-    //public void QuestSceneTitleInfo(string title, string description,string monsterType)
-    //{
-    //    Console.Clear();
-
-    //    ConsoleUtility.ShowTitle(title);
-
-    //    Console.WriteLine(description);
-
-    //    //Console.WriteLine($" - {monsterType} {monsterCount}처치  {monsterCount}");
-    //    if (!IsAccept)
-    //    {
-    //        switch (ConsoleUtility.PromptSceneChoice(1, 2))
-    //        {
-    //            case 1:
-    //                Console.WriteLine("1. 수락");
-    //                break;
-    //            case 2:
-    //                Console.WriteLine("2. 거절");
-    //                break;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        switch (ConsoleUtility.PromptSceneChoice(1, 2))
-    //        {
-    //            case 1:
-    //                Console.WriteLine("1. 취소");
-    //                break;
-    //            case 2:
-    //                Console.WriteLine("2. 나가기");
-    //                break;
-    //        }
-    //    }
-    //}
+   
     public void QuestReard(string rewardItem)
     {
         if(IsCompleted)
