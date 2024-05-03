@@ -13,17 +13,19 @@ public partial class GameManager
         questList.Add(new Quest("공허충잡기","전사미니언을 잡아라", MonsterType.MeleeMinion, 5, 0 , 2, 1000));
     }
 
-    //public void CreateMonster()
-    //{
-    //    monsters.Add(new Monster("미니언", 1, 15, 5));
-    //    monsters.Add(new Monster("전사미니언", 2, 25, 5));
-    //    monsters.Add(new Monster("대포미니언", 3, 25, 10));
-    //    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8));
-    //    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15));
-    //    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15));
-    //    monsters.Add(new Monster("드래곤", 7, 70, 20));
-    //    monsters.Add(new Monster("내셔남작", 10, 100, 30));
-    //}
+    public void MonsterCountForQuest()
+    {
+        if (monsters[selectIdx].IsDead)
+        {
+            foreach (Quest quest in questList)
+            {
+                if (quest.IsAccept && !quest.IsCompleted && monsters[selectIdx].MonstersType == quest.MonsterType)
+                {
+                    quest.MonsterCount++;
+                }
+            }
+        }
+    }
 
 
     public void PrintQuestInfo(int idx)
@@ -46,7 +48,7 @@ public partial class GameManager
         {
             Console.WriteLine($"{idx+1} - {questList[idx].Title}[완료]");
         }
-        else if (!questList[idx].IsCompleted && questList[idx].IsAccept)
+        else if (questList[idx].IsAccept)
         {
             Console.WriteLine($"{idx + 1} - {questList[idx].Title}[진행중]");
         }
@@ -88,10 +90,12 @@ public partial class GameManager
 
         ConsoleUtility.ShowTitle("▣ Quest ▣");
 
-        if (questList[selectQuest].MonsterKill <= questList[selectIdx].MonsterCount && questList[selectIdx].IsAccept==true)
+        if (questList[selectQuest].MonsterKill <= questList[selectQuest].MonsterCount && questList[selectQuest].IsAccept==true)
         {
-            questList[selectIdx].IsCompleted = true;
+            questList[selectQuest].IsCompleted = true;
         }
+
+
         if (questList[selectQuest].IsAccept == true)
         {
             Console.WriteLine(" ");
@@ -146,12 +150,12 @@ public partial class GameManager
             switch (ConsoleUtility.PromptSceneChoice(0,1))
             {
                 case 1:
+                    player.Gold += questList[selectQuest].RewardGold;
+                    storeInventory[questList[selectQuest].RewardItem].Purchase();
+                    inventory.Add(storeInventory[questList[selectQuest].RewardItem]);
+                    questList[selectQuest].IsAccept = false;
                     QuestCurrectScene(selectQuest);
-                    
-                        questList[selectQuest].IsAccept = false;
-                        player.Gold += questList[selectQuest].RewardGold;
-                        storeInventory[questList[selectQuest].RewardItem].Purchase();
-                    
+
                     break;
                 case 0:
                     QuestSelectScene();

@@ -211,7 +211,7 @@ public partial class GameManager
 
     private void ParameterCleaning()
     {
-        selectIdx = -1;
+        selectIdx = -1;      
         skillIdx = -1;
         totalDamage = 0;
         isCritical = false;
@@ -474,9 +474,10 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        if (act == PlayerActSelect.Skill && skillIdx != -1) // 스칼 사용을 선택했을 시
+        if (act == PlayerActSelect.Skill && skillIdx != -1) // 스킬 사용을 선택했을 시
         {
             skills.SkillUse(monsters, selectIdx, player, totalDamage, skillIdx, isCritical);
+            MonsterCountForQuest();
         }
         else if (act == PlayerActSelect.Attack) // 공격 사용을 선택했을 시
         {
@@ -484,19 +485,13 @@ public partial class GameManager
             player.PrintAttackDescription(target, totalDamage, isCritical);
             Console.WriteLine("");
             target.PrintMonsterChangeDescription(target.Hp, totalDamage);
+            MonsterCountForQuest();
         }
         else { Console.WriteLine("당신은 이미 턴을 소모하셨습니다..."); } // 아이템 사용 또는 도주 실패 시
 
-        foreach (Quest quest in questList)
-        {
-            if (quest.IsAccept && !quest.IsCompleted)
-            {
-                if(monsters[selectIdx].IsDead==true)
-                {
-                    quest.MonsterCount++;
-                }
-            }
-        }
+        
+
+
 
         Console.WriteLine("");
         Console.WriteLine("계속 진행하려면 엔터를 눌러주세요."); // 바꾼 이유. 유저 입장에서는 2번 눌러줘야해서 귀찮다
