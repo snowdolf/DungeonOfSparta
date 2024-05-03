@@ -1,8 +1,15 @@
 ﻿public partial class GameManager
 {
-    private void MainScene()
+    private void MainScene(string? prompt = null)
     {
-        // 구성
+        if (prompt != null)
+        {
+            // 1초간 메시지를 띄운 다음에 다시 진행
+            Console.Clear();
+            ConsoleUtility.ShowTitle(prompt);
+            Thread.Sleep(300);
+        }
+
         // 0. 화면 정리
         Console.Clear();
 
@@ -31,6 +38,7 @@
         {
             case 0:
                 // 저장 기능 구현하기
+                SaveScene();
                 return;
             case 1:
                 StatusScene();

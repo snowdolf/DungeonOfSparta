@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 internal class Skill
 {
-    public List<Skill> SkillList { get; private set; }  // 이곳은 스킬을 모아줄 목록입니다. (참조명).SkillList 를 유의!
+    public List<Skill> SkillList { get; set; }  // 이곳은 스킬을 모아줄 목록입니다. (참조명).SkillList 를 유의!
     public string Name { get; set; }
     public string SkillDesc { get; set; }
 
