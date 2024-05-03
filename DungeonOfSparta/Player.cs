@@ -56,9 +56,10 @@
     }
 
     // BattleScene에서 player가 monster를 공격할 때 사용
-    public void PrintAttackDescription(Monster monster, int damage)
+    public void PrintAttackDescription(Monster monster, int damage, bool critical)
     {
-        Console.WriteLine($"{Name} 의 공격!");
+        if (critical) { ConsoleUtility.PrintTextHighlights("", $" {Name} 의 치명적인 공격! Critical!"); }
+        else { Console.WriteLine($" {Name} 의 공격!"); }
         ConsoleUtility.PrintTextHighlights("Lv.", monster.Level.ToString(), "", false);
         Console.Write($" {monster.Name} 을(를) 맞췄습니다. ");
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");

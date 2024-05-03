@@ -13,9 +13,9 @@
 
         // TODO : 능력치 강화분을 표현하도록 변경
 
-        int bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
-        int bonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
-        int bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+        bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+        bonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
+        bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
 
         ConsoleUtility.PrintTextHighlights("공격력 : ", (player.Atk + bonusAtk).ToString(), bonusAtk > 0 ? $" (+{bonusAtk})" : "");
         ConsoleUtility.PrintTextHighlights("방어력 : ", (player.Def + bonusDef).ToString(), bonusDef > 0 ? $" (+{bonusDef})" : "");
