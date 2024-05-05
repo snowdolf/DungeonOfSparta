@@ -12,7 +12,8 @@ enum MonsterType
     BlueSentinel,   // 푸른파수꾼
     RedBrambleback, // 붉은덩굴정령
     Dragon,         // 드래곤
-    BaronNashor     // 내셔남작
+    BaronNashor,     // 내셔남작
+    Krugs = 10,      // 돌거북
 }
 
 public partial class GameManager
@@ -65,16 +66,23 @@ public partial class GameManager
     int stage;
 
     // 재귀 호출 피하기
-    bool isWantFight;
+    bool isBattleCycle;
 
     // 아이템 사용 시 출력하게할 메시지
     string UseItemText;
 
+    List<Monster> DeadDeathRattleMonsters = new List<Monster>();    // 죽음의 메아리 있는 몬스터들이 죽었을 경우 모으는 목록
+
     private void BattleScene()
     {
-        isWantFight = false;
+        // 낀 장비 적용하기
+        bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+        bonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
+        bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+
+        isBattleCycle = false;
         StageSelectScene();
-        while (isWantFight)
+        while (isBattleCycle)
         {
             BattleCycle();
         }
@@ -96,6 +104,9 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("(현재 목표 : ", player.MaxStage.ToString(), " 층)");
 
         Console.WriteLine("");
+        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
+
+        Console.WriteLine("");
         if (player.MaxStage == 1)
         {
             Console.WriteLine("1. 스테이지 입력");
@@ -112,11 +123,11 @@ public partial class GameManager
         switch (keyInput)
         {
             case 0:
-                isWantFight = false;
+                isBattleCycle = false;
                 break;
             default:
                 stage = keyInput;
-                isWantFight = true;
+                isBattleCycle = true;
                 break;
         }
     }
@@ -129,7 +140,6 @@ public partial class GameManager
         // 전투 중
         while (battlesituation == BattleSituation.BattleNow)    // 왜 이렇게 했나요? : 그래야 흐름을 한 눈에 보기 쉽고, 중간 탈출문들을 어디다 넣을 지 감이 바로 잡힌다. 
         {                                                       // 추가적으로 메서드 내에서 return 없이 계속해서 서로 간의 호출을 계속할 경우 호출 스택이 지워지지 않고 그대로 쌓인다.
-            ParameterCleaning();
             BattleStartScene();
             if (battlesituation == BattleSituation.BattleFlee) { break; }
             switch ((int)act)   // 0 취소, 1 공격, 2 스킬. 3 아이템 10. 특정 행동 실패
@@ -162,11 +172,32 @@ public partial class GameManager
             // 플레이어의 행동 결과!
             PlayerResultScene(); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
 
-            foreach (Monster monster in monsters)
+            foreach (Monster monster in monsters)   // 적 턴!
             {
-                if (monster.IsDead == true) { continue; }   // 죽은 적은 아무 행동도 하지 않습니다.
+                if (monster.IsDead == true) { if (monster.DeathRattle) { DeadDeathRattleMonsters.Add(monster); } continue; }   // 죽은 적은 아무 행동도 하지 않습니다. (특수 몬스터들은 예외)
                 EnemyBattleResultScene(monster); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
-            }  // 전투 중의 마지막 싸이클
+            }
+
+            // 죽음의 메아리 발동!
+            foreach (Monster monster in DeadDeathRattleMonsters)    // 왜 따로 나눴나요? : 몬스터 리스트가 반복의 조건문이 되는 동안 해당 리스트 수정이 불가능하기 때문에
+            {
+                EnemyDeathRattleResultScene(monster);
+            }
+
+            // 각종 매개변수 초기화 및 스킬 쿨타임 감소
+            ParameterCleaning();
+
+            // 승리, 패배 조건 확인 - 왜 옮겼나요? : 죽음의 메아리 때문에
+            if (player.IsDead)
+            {
+                // 플레이어가 죽었으면 최종 결과 씬으로 이동
+                battlesituation = BattleSituation.BattleLose;
+            }
+            else if (monsters.All(monster => monster.IsDead)) 
+            {
+                // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
+                battlesituation = BattleSituation.BattleWin;
+            }
         }
 
         // 전투 결과
@@ -191,19 +222,19 @@ public partial class GameManager
             case 0:
                 Console.WriteLine("마을로 복귀 중입니다..");
                 Thread.Sleep(1000);
-                isWantFight = false;
+                isBattleCycle = false;
                 return;
             case 1:
                 if (battlesituation != BattleSituation.BattleWin)
                 {
                     Console.WriteLine("마을로 복귀 중입니다..");
                     Thread.Sleep(1000);
-                    isWantFight = false;
+                    isBattleCycle = false;
                     return;
                 }
                 Console.WriteLine("다음 스테이지로 넘어가는 중...");
                 Thread.Sleep(1000);
-                isWantFight = true;
+                isBattleCycle = true;
                 return;
             default:
                 break;
@@ -217,6 +248,13 @@ public partial class GameManager
         skillIdx = -1;
         totalDamage = 0;
         isCritical = false;
+
+        DeadDeathRattleMonsters.Clear();    // 죽메 효과 치우기
+
+        foreach (Skill skill in skills.SkillList)
+        {
+                skill.CoolTime -= 1; // 스킬 쿨타임 감소!
+        }
     }
 
     private void BeforeBattle()
@@ -225,8 +263,9 @@ public partial class GameManager
 
         Console.Clear();
 
-        ConsoleUtility.ShowTitle("■ 적들이 등장했습니다! ■");
-
+        if (stage == 5) { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("■ 보스 스테이지입니다! ■"); Console.ResetColor(); }
+        else { ConsoleUtility.ShowTitle("■ 적들이 등장했습니다! ■"); }
+        
         MonsterAndPlayerStatus();
 
         Console.WriteLine("");
@@ -259,57 +298,66 @@ public partial class GameManager
 
         monsters = new List<Monster>();
 
-        // 높은 스테이지일수록 더 많은 몬스터 등장 
-        randomNumber = random.Next(1, 4 + stage / 3);   // randomNumber = 1 ~ (3 + stage / 3)
-        for (int i = 0; i < randomNumber; i++)
+        if (stage == 5)
         {
-            // Enum.GetNames(typeof(MonsterType)).Length = 8
-            // random.Next(8) = 0 ~ 7
+            monsters.Add(new AncientKrug());
+            monsters.Add(new Krug());
+        }
+        else
+        { 
+            // 높은 스테이지일수록 더 많은 몬스터 등장 
+            randomNumber = random.Next(1, 4 + stage / 3);   // randomNumber = 1 ~ (3 + stage / 3)
+            for (int i = 0; i < randomNumber; i++)
+            {
+                // Enum.GetNames(typeof(MonsterType)).Length = 8
+                // random.Next(8) = 0 ~ 7
 
-            // 몬스터 레벨이 스테이지 이상이어야 등장
-            int monsterMaxIdx = Enum.GetNames(typeof(MonsterType)).Length;
-            if (stage < 5)
-            {
-                monsterMaxIdx = stage;
-            }
-            else if (stage < 7)
-            {
-                monsterMaxIdx = 6;
-            }
-            else if (stage < 10)
-            {
-                monsterMaxIdx = 7;
+                // 몬스터 레벨이 스테이지 이상이어야 등장
+                int monsterMaxIdx = Enum.GetNames(typeof(MonsterType)).Length;
+                if (stage < 5)
+                {
+                    monsterMaxIdx = stage;
+                }
+                else if (stage < 7)
+                {
+                    monsterMaxIdx = 6;
+                }
+                else if (stage < 10)
+                {
+                    monsterMaxIdx = 7;
+                }
+
+                MonsterType monsterType = (MonsterType)random.Next(monsterMaxIdx);
+
+                switch (monsterType)    // 이거 나중에 몬스터로 다 챙겨가자.
+                {
+                    case MonsterType.Minion:
+                        monsters.Add(new Monster("미니언", 1, 15, 5, MonsterType.Minion));
+                        break;
+                    case MonsterType.MeleeMinion:
+                        monsters.Add(new Monster("전사미니언", 2, 25, 5, MonsterType.MeleeMinion));
+                        break;
+                    case MonsterType.SiegeMinion:
+                        monsters.Add(new Monster("대포미니언", 3, 25, 10, MonsterType.SiegeMinion));
+                        break;
+                    case MonsterType.SuperMinion:
+                        monsters.Add(new Monster("슈퍼미니언", 4, 30, 8, MonsterType.SuperMinion));
+                        break;
+                    case MonsterType.BlueSentinel:
+                        monsters.Add(new Monster("푸른파수꾼", 5, 40, 15, MonsterType.BlueSentinel));
+                        break;
+                    case MonsterType.RedBrambleback:
+                        monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15, MonsterType.RedBrambleback));
+                        break;
+                    case MonsterType.Dragon:
+                        monsters.Add(new Monster("드래곤", 7, 70, 20, MonsterType.Dragon));
+                        break;
+                    case MonsterType.BaronNashor:
+                        monsters.Add(new Monster("내셔남작", 10, 100, 30, MonsterType.BaronNashor));
+                        break;
+                }
             }
 
-            MonsterType monsterType = (MonsterType)random.Next(monsterMaxIdx);
-
-            switch (monsterType)    // 이거 나중에 몬스터로 다 챙겨가자.
-            {
-                case MonsterType.Minion:
-                    monsters.Add(new Monster("미니언", 1, 15, 5,MonsterType.Minion));
-                    break;
-                case MonsterType.MeleeMinion:
-                    monsters.Add(new Monster("전사미니언", 2, 25, 5, MonsterType.MeleeMinion));
-                    break;
-                case MonsterType.SiegeMinion:
-                    monsters.Add(new Monster("대포미니언", 3, 25, 10, MonsterType.SiegeMinion));
-                    break;
-                case MonsterType.SuperMinion:
-                    monsters.Add(new Monster("슈퍼미니언", 4, 30, 8, MonsterType.SuperMinion));
-                    break;
-                case MonsterType.BlueSentinel:
-                    monsters.Add(new Monster("푸른파수꾼", 5, 40, 15, MonsterType.BlueSentinel));
-                    break;
-                case MonsterType.RedBrambleback:
-                    monsters.Add(new Monster("붉은덩굴정령", 5, 40, 15,MonsterType.RedBrambleback));
-                    break;
-                case MonsterType.Dragon:
-                    monsters.Add(new Monster("드래곤", 7, 70, 20,MonsterType.Dragon));
-                    break;
-                case MonsterType.BaronNashor:
-                    monsters.Add(new Monster("내셔남작", 10, 100, 30,MonsterType.BaronNashor));
-                    break;
-            }
         }
     }
 
@@ -363,7 +411,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("(남은 포션 : ", player.Potion.ToString(), " )");
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusHp);
+        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
 
         Console.WriteLine("");
         Console.WriteLine("1. 사용하기");
@@ -458,6 +506,12 @@ public partial class GameManager
                 act = PlayerActSelect.Cancel;
                 break;
             default:
+                if (skills.SkillList[skillIdx-1].CoolTime != 0)
+                {
+                    ConsoleUtility.PrintTextHighlights("", "해당 스킬은 아직 쿨타임이 남아있습니다!");
+                    Thread.Sleep(500);
+                    act = PlayerActSelect.Cancel;
+                }
                 break;
         }   // 스킬 선택
     }
@@ -555,11 +609,6 @@ public partial class GameManager
         Console.WriteLine("");
 
         Console.ReadLine();
-        if (monsters.All(monster => monster.IsDead))
-        {
-            // 모든 몬스터가 죽었으면 최종 결과 씬으로 이동
-            battlesituation = BattleSituation.BattleWin;
-        }
     }
 
     // Monster의 행동 턴!
@@ -596,11 +645,22 @@ public partial class GameManager
         Console.WriteLine("");
 
         Console.ReadLine();
-        if (player.IsDead)
-        {
-            // 플레이어가 죽었으면 최종 결과 씬으로 이동
-            battlesituation = BattleSituation.BattleLose;
-        }
+    }
+
+    // 몬스터 죽음의 메아리 씬
+    private void EnemyDeathRattleResultScene(Monster enemy)
+    {
+        Console.Clear();
+
+        ConsoleUtility.ShowTitle("■ Battle!! - Enemy ■");
+
+        enemy.DeathRattleActive(monsters);
+
+        Console.WriteLine("");
+        Console.WriteLine("계속 진행하려면 엔터를 눌러주세요.");
+        Console.WriteLine("");
+
+        Console.ReadLine();
     }
 
     private void FinalBattleResultScene()
@@ -620,7 +680,7 @@ public partial class GameManager
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("던전에서 몬스터 ", monsters.Count.ToString(), "마리를 잡았습니다.");
             player.EarnExp(monsters.Count, skills); // 몬스터를 죽인 수만큼 경험치 획득
-            player.EarnGold(stage, monsters);
+            player.EarnLoot(stage, monsters);   // 보상 획득
             player.CheckUnlockStage(stage);
         }
         else if (battlesituation == BattleSituation.BattleFlee)
@@ -637,6 +697,10 @@ public partial class GameManager
             Console.ResetColor();
         }
 
+        foreach (Skill skill in skills.SkillList)
+        {
+            skill.CoolTime = 0;     // 모든 스킬 쿨 초기화!
+        }
         Console.WriteLine("");
         player.PrintPlayerChangeDescription(initialPlayerHp);
     }
@@ -652,7 +716,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusHp);
+        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
     }
 
 

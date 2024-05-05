@@ -26,13 +26,23 @@
         IsDead = isDead;
     }
 
-    // BattleScene에서 player 정보 출력할 때 사용
+    // 물약 전용 오버로딩
     public void PrintPlayerDescription(int bonusHp = 0)
     {
         Console.WriteLine("[내정보]");
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name} ( {Job} )");
         ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString(), "", false);
         ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString());
+    }
+
+    // BattleScene에서 player 정보 출력할 때 사용
+    public void PrintPlayerDescription(int bonusAtk = 0, int bonusDef = 0, int bonusHp = 0)
+    {
+        Console.WriteLine("[내정보]");
+        ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name} ( {Job} )");
+        ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString(), "", false);
+        ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString());
+        ConsoleUtility.PrintTextHighlights("공격력 : ", (Atk + bonusAtk).ToString(), " ", false); ConsoleUtility.PrintTextHighlights("방어력 : ", (Def + bonusDef).ToString());
     }
 
     // BattleScene에서 player 정보 변화를 출력할 때 사용
@@ -67,20 +77,24 @@
         ConsoleUtility.PrintTextHighlights("[데미지 : ", damage.ToString(), "]");
     }
 
-    public void EarnGold(int stage, List<Monster> monsters)
+    public void EarnLoot(int stage, List<Monster> monsters) // 보상 획득 메서드입니다.
     {
         Console.WriteLine();
-        stage *= 250; // 스테이지가 높을수록 보상 증가
         int monsterLoot = 0;
         foreach (Monster monster in monsters)
         {
             monsterLoot += 50 * (int)monster.MonstersType; // 몬스터 등급이 높을수록 보상 증가
         }
-        int totalRewards = stage + monsterLoot;
+        int totalRewards = (stage * 250) + monsterLoot;
         int previousGold = Gold;
         Gold += totalRewards;
         ConsoleUtility.PrintTextHighlights("", $"{totalRewards}", "G 만큼의 금액을 획득하셨습니다!");
         ConsoleUtility.PrintTextHighlights("보유 금액 : ", $"{previousGold} - > {Gold}", "G");
+        if (stage == 5)
+        {
+            Potion += stage;
+            ConsoleUtility.PrintTextHighlights("보스 스테이지 추가 보상으로 ", $"물약 {stage}개", "를 획득하셨습니다!");
+        }
     }
 
     public void EarnExp(int exp, Skill skills) // 경험치 획득 메서드입니다.

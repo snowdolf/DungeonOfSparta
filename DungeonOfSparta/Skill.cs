@@ -14,6 +14,19 @@ internal class Skill
     public string Name { get; set; }
     public string SkillDesc { get; set; }
 
+    private int coolTime;
+    public int CoolTime 
+    { 
+        get { return coolTime; }
+        set
+        {
+            coolTime = value;
+            if (coolTime < 0)
+            {
+                coolTime = 0;
+            }
+        }
+    }
     public List<SkillName> SkillForSave { get; set; } // 세이브 때문에 추가
 
     public virtual void Active(List<Monster> target, int idx, Player player, int damage, bool critical) { }  // 범용성을 위해서 List<Monster>를 가져왔고, player의 정보 자체를 가져와서 플레이어의 특정 스텟을 데미지 계산에 이용하실 수 있습니다.
@@ -58,7 +71,7 @@ internal class Skill
     }
 
     public void SkillDescription()   // 스킬 보여주기
-    {;
+    {
         Console.WriteLine("■ 현재 스킬 목록 ■");
 
         if (SkillList.Count == 0) { Console.WriteLine("보유 중인 스킬이 없습니다!"); }
@@ -80,8 +93,16 @@ internal class Skill
         {
             for (int i = 0; i < SkillList.Count; i++)
             {
-                Console.WriteLine("");
-                SkillList[i].PrintSkillDescription(true, i + 1);
+                if (SkillList[i].CoolTime != 0)
+                {
+                    Console.WriteLine();
+                    SkillList[i].PrintSkillDescriptionCoolTime(true, i + 1);
+                }
+                else
+                {
+                    Console.WriteLine("");
+                    SkillList[i].PrintSkillDescription(true, i + 1);
+                }
             }
             Console.WriteLine();
             Console.WriteLine("사용할 스킬을 선택하세요!");
@@ -104,6 +125,17 @@ internal class Skill
             }
             Console.WriteLine($"스킬 이름 : {Name} ");
             ConsoleUtility.PrintTextHighlights("효과 - ", $"{SkillDesc}");
+    }
+
+    public void PrintSkillDescriptionCoolTime(bool withNumber = false, int idx = 0) // 스킬 출력
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        if (withNumber)
+        {
+            Console.Write($"{idx} ");
+        }
+        Console.WriteLine($"스킬 이름 : {Name} - 현재 쿨타임입니다! 남은 턴 {CoolTime}");
+        Console.ResetColor();
     }
 }
 
@@ -131,6 +163,8 @@ class DoubleAttack : Skill
 
         Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
+
+        CoolTime += 2;
     }
 }
 
@@ -160,6 +194,8 @@ class Slash : Skill
             Console.WriteLine("");
             i.PrintMonsterChangeDescription(i.Hp, damage);
         }
+
+        CoolTime += 3;
     }
 }
 
@@ -185,6 +221,8 @@ class RevengeAttack : Skill
 
         Console.WriteLine("");
         targets[idx].PrintMonsterChangeDescription(targets[idx].Hp, damage);
+
+        CoolTime += 3;
     }
 }
 
