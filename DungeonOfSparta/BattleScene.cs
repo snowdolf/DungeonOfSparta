@@ -28,10 +28,6 @@ public partial class GameManager
     // FinalBattleResultScene 에서 활용될 예정
     int initialPlayerHp;
 
-    int bonusAtk;
-    int bonusDef;
-    int bonusHp;
-
     enum BattleSituation
     {
         Peace = -1,
@@ -71,14 +67,17 @@ public partial class GameManager
     // 아이템 사용 시 출력하게할 메시지
     string UseItemText;
 
+    // 방어형 스킬 유무
+    bool isDefensiveSkill;
+
     List<Monster> DeadDeathRattleMonsters = new List<Monster>();    // 죽음의 메아리 있는 몬스터들이 죽었을 경우 모으는 목록
 
     private void BattleScene()
     {
         // 낀 장비 적용하기
-        bonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
-        bonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
-        bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+        player.BonusAtk = inventory.Select(item => item.IsEquipped ? item.Atk : 0).Sum();
+        player.BonusDef = inventory.Select(item => item.IsEquipped ? item.Def : 0).Sum();
+        player.BonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
 
         isBattleCycle = false;
         StageSelectScene();
@@ -104,7 +103,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("(현재 목표 : ", player.MaxStage.ToString(), " 층)");
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
+        player.PrintPlayerDescription();
 
         Console.WriteLine("");
         if (player.MaxStage == 1)
@@ -165,17 +164,18 @@ public partial class GameManager
                     continue;
             }
             if (act == PlayerActSelect.Cancel) { continue; }    // 캔슬! 반복문 처음부터
-            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill)
+            else if (act == PlayerActSelect.Attack || act == PlayerActSelect.Skill && !isDefensiveSkill)    // 공격이거나, 방어형 스킬이 아닌 스킬인 경우 (&&일 경우 서로 연결되고 ||일 경우 따로 떨어지는 것 같다.)
             {
                 EnemySelectScene(); if (act == PlayerActSelect.Cancel) { continue; } // 캔슬! 반복문 처음부터
             }
             // 플레이어의 행동 결과!
-            PlayerResultScene(); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
+            PlayerResultScene();
 
             foreach (Monster monster in monsters)   // 적 턴!
             {
                 if (monster.IsDead == true) { if (monster.DeathRattle) { DeadDeathRattleMonsters.Add(monster); } continue; }   // 죽은 적은 아무 행동도 하지 않습니다. (특수 몬스터들은 예외)
-                EnemyBattleResultScene(monster); if (battlesituation == BattleSituation.BattleLose || battlesituation == BattleSituation.BattleWin) { break; }
+                EnemyBattleResultScene(monster);    // 적의 행동
+                if (monster.IsDead == true) { if (monster.DeathRattle) { DeadDeathRattleMonsters.Add(monster); } }   // 반격기로 죽을 경우에도 추가 
             }
 
             // 죽음의 메아리 발동!
@@ -248,6 +248,7 @@ public partial class GameManager
         skillIdx = -1;
         totalDamage = 0;
         isCritical = false;
+        isDefensiveSkill = false;
 
         DeadDeathRattleMonsters.Clear();    // 죽메 효과 치우기
 
@@ -298,7 +299,7 @@ public partial class GameManager
 
         monsters = new List<Monster>();
 
-        if (stage == 5)
+        if (stage == 5) // 보스 스테이지
         {
             monsters.Add(new AncientKrug());
             monsters.Add(new Krug());
@@ -314,22 +315,29 @@ public partial class GameManager
 
                 // 몬스터 레벨이 스테이지 이상이어야 등장
                 int monsterMaxIdx = Enum.GetNames(typeof(MonsterType)).Length;
+                int monsterMinIdx = 0;  // 최소 보정치
                 if (stage < 5)
                 {
                     monsterMaxIdx = stage;
                 }
                 else if (stage < 7)
                 {
+                    monsterMinIdx = 2;
                     monsterMaxIdx = 6;
                 }
                 else if (stage < 10)
                 {
+                    monsterMinIdx = 3;
                     monsterMaxIdx = 7;
                 }
+                else
+                {
+                    monsterMinIdx = 4;
+                }
 
-                MonsterType monsterType = (MonsterType)random.Next(monsterMaxIdx);
+                MonsterType monsterType = (MonsterType)random.Next(monsterMinIdx, monsterMaxIdx);
 
-                switch (monsterType)    // 이거 나중에 몬스터로 다 챙겨가자.
+                switch (monsterType)
                 {
                     case MonsterType.Minion:
                         monsters.Add(new Monster("미니언", 1, 15, 5, MonsterType.Minion));
@@ -411,7 +419,7 @@ public partial class GameManager
         ConsoleUtility.PrintTextHighlights("(남은 포션 : ", player.Potion.ToString(), " )");
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
+        player.PrintPlayerDescription();
 
         Console.WriteLine("");
         Console.WriteLine("1. 사용하기");
@@ -431,9 +439,9 @@ public partial class GameManager
                     if (player.Potion > 0)
                     {
                         player.Hp += 30;
-                        if (player.Hp > (100 + bonusHp))
+                        if (player.Hp > (100 + player.BonusHp))
                         {
-                            player.Hp = 100 + bonusHp;
+                            player.Hp = 100 + player.BonusHp;
                         }
                         player.Potion--;
                      UseItemText += $" -> {player.Hp}";
@@ -506,12 +514,27 @@ public partial class GameManager
                 act = PlayerActSelect.Cancel;
                 break;
             default:
-                if (skills.SkillList[skillIdx-1].CoolTime != 0)
+                skillIdx--; // 인덱싱에 혼란스러우니 여기서 감소할 것
+                if (skills.SkillList[skillIdx].CoolTime != 0)
                 {
                     ConsoleUtility.PrintTextHighlights("", "해당 스킬은 아직 쿨타임이 남아있습니다!");
                     Thread.Sleep(500);
                     act = PlayerActSelect.Cancel;
                 }
+                else if (skills.SkillList[skillIdx].DefensiveSkill) // 방어형 스킬일 경우
+                {
+                    isDefensiveSkill = true;
+                }
+                else if (skills.SkillList[skillIdx].ConditionCheck) // 조건이 필요한 스킬일 경우
+                {
+                    if (skills.SkillList[skillIdx].ConditionCheckMethod(player) == false)
+                    {
+                        Thread.Sleep(500);
+                        act = PlayerActSelect.Cancel;
+                        return;
+                    }
+                }
+                
                 break;
         }   // 스킬 선택
     }
@@ -562,7 +585,7 @@ public partial class GameManager
                     }
                     else
                     {
-                        selectIdx--;    // 매우 중요한 항목이다! (몬스터인덱싱 때문에)
+                        selectIdx--;    // 몬스터 인덱싱 때문에
                         PlayerDamageCaculate();
                         return;
                     }
@@ -579,7 +602,11 @@ public partial class GameManager
         ConsoleUtility.ShowTitle("■ Battle!! ■");
 
         Console.WriteLine("");
-        if (act == PlayerActSelect.Skill && skillIdx != -1) // 스킬 사용을 선택했을 시
+        if (isDefensiveSkill)   // 반격기일 경우
+        {
+            skills.SkillList[skillIdx].DefensiveSkillReady(player);
+        }
+        else if (act == PlayerActSelect.Skill && skillIdx != -1) // 스킬 사용을 선택했을 시
         {
             skills.SkillUse(monsters, selectIdx, player, totalDamage, skillIdx, isCritical);
             MonsterCountForQuest();
@@ -598,7 +625,7 @@ public partial class GameManager
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("", UseItemText);
         }
-        else { Console.WriteLine("당신은 이미 턴을 소모하셨습니다..."); } // 아이템 사용 또는 도주 실패 시
+        else { Console.WriteLine("당신은 이미 턴을 소모하셨습니다..."); } // 도주 실패 시
 
         
 
@@ -618,17 +645,26 @@ public partial class GameManager
 
         ConsoleUtility.ShowTitle("■ Battle!! - Enemy ■");
 
-        int DodgeChance = random.Next(0, 101);  // 나중에 따로 메서드로 넣을 지 고민되는 부분...
-        if (50 > DodgeChance)
+        int DodgeChance = random.Next(0, 101);  // 회피 판정
+        if (isDefensiveSkill)   // 반격기나 방어기인 경우
+        {
+            List<Monster> target = new List<Monster>() { enemy };   // 단일 대상 시 (나중에 범위 공격 논리값도 나눠야할 것 같다;)
+
+            Console.WriteLine();
+            Console.WriteLine($" {enemy.Name}의 공격!");
+            PlayerDamageCaculate(); // 반격 데미지 재계산
+            skills.SkillUse(target, selectIdx, player, totalDamage, skillIdx, isCritical);
+        }
+        else if (50 > DodgeChance)  // 회피 성공 시
         {
             Console.WriteLine("");
             ConsoleUtility.PrintTextHighlights("Lv.", enemy.Level.ToString(), "", false);
-            Console.WriteLine($" {enemy.Name} 의 공격!");
+            Console.WriteLine($" {enemy.Name}의 공격!");
             ConsoleUtility.PrintTextHighlights($"{player.Name}이(가) 공격을 피했습니다! ",  "Dodge!");
         }
         else
         {
-            int damage = enemy.Atk - (player.Def + bonusDef) / 5;
+            int damage = enemy.Atk - (player.Def + player.BonusDef) / 5;
             if (damage <= 0)
             {
                 damage = 1;
@@ -663,7 +699,7 @@ public partial class GameManager
         Console.ReadLine();
     }
 
-    private void FinalBattleResultScene()
+    private void FinalBattleResultScene()   // 전투 최종 결과
     {
 
         Console.Clear();
@@ -701,6 +737,7 @@ public partial class GameManager
         {
             skill.CoolTime = 0;     // 모든 스킬 쿨 초기화!
         }
+
         Console.WriteLine("");
         player.PrintPlayerChangeDescription(initialPlayerHp);
     }
@@ -716,7 +753,7 @@ public partial class GameManager
         }
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusAtk, bonusDef, bonusHp);
+        player.PrintPlayerDescription();
     }
 
 
@@ -725,7 +762,7 @@ public partial class GameManager
     // 플레이어 공격력 계산 (스킬도 이 공격을 포함시켜준다!)
     private void PlayerDamageCaculate()
     {
-        int damage = player.Atk + bonusAtk;
+        int damage = player.Atk + player.BonusAtk;
         int damageMargin = (int)Math.Ceiling(damage * 0.1f);
         int criticalChance = random.Next(0, 101);
         if (50 > criticalChance)  // 여기다가 나중에 플레이어의 치명타 확률을 넣으시면 됩니다.
@@ -735,6 +772,7 @@ public partial class GameManager
         }
         else
         {
+            isCritical = false;     // 평타일 경우 당연히 이 판정이 들어가줘야한다.
             totalDamage = random.Next(damage - damageMargin, damage + damageMargin + 1); // 최종 공격력 반영
         }
     }

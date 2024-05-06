@@ -93,14 +93,13 @@ public partial class GameManager
         json = File.ReadAllText(filePath);
         skills = JsonConvert.DeserializeObject<Skill>(json);
 
-        // 스킬 할당을 위해 잠깐 다른 곳으로 빼두고 [참조형이니까 new를 꼭 써줘야한다.]
-        List<SkillName> temp = new List<SkillName>(skills.SkillForSave); 
+        // 업데이트 이후로 빠진 스킬이 있나 체크
+        skills.CheckMissingSkills(player);
 
         // 중복 방지를 위해 지우는 작업
         skills.SkillList.Clear(); 
-        skills.SkillForSave.Clear(); 
-
-        foreach (SkillName skillname in temp) 
+        
+        foreach (SkillName skillname in skills.SkillForSave) 
         {
             skills.SkillEarn(skillname);
         }

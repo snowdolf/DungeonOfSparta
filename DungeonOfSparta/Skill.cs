@@ -1,11 +1,13 @@
-﻿using System.Reflection.Emit;
+﻿using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Xml.Linq;
 public enum SkillName   // 추가되는 대로 넣어주시면 됩니다.
 {
     DoubleAttack,
     Slash,
     RevengeAttack,
-    MoneyAttack
+    MoneyAttack,
+    CounterAttack
 }
 
 internal class Skill
@@ -27,14 +29,17 @@ internal class Skill
             }
         }
     }
-    public List<SkillName> SkillForSave { get; set; } // 세이브 때문에 추가
+    public bool DefensiveSkill { get; set; }    // 방어형 스킬
+    public bool ConditionCheck { get; set; }       // 사용 조건이 필요한 경우
+    public HashSet<SkillName> SkillForSave { get; set; } // 세이브 때문에 추가 
+    // HashSet으로 바꾼 이유 - 나중에 레벨업 스킬이 업데이트가 된다면, 현재 플레이어에게 레벨업에 해당하는 것들도 추가적으로 넣어줘야한다 그 과정에서 중복을 방지하기 위해서 HashSet의 특징인 중복된 값 저장이 되지 않는 특징을 이용한다.
 
     public virtual void Active(List<Monster> target, int idx, Player player, int damage, bool critical) { }  // 범용성을 위해서 List<Monster>를 가져왔고, player의 정보 자체를 가져와서 플레이어의 특정 스텟을 데미지 계산에 이용하실 수 있습니다.
 
     public Skill() 
     {
         SkillList = new List<Skill>(); // 참조형 변수들은 아무것도 참조하고 있지 않았을 때 접근 시도를 하면 Null참조 에러 뜹니다.
-        SkillForSave = new List<SkillName>();
+        SkillForSave = new HashSet<SkillName>();
     }
 
     public void SkillEarn(SkillName idx)  // 스킬 획득입니다. case에 맞게 스킬을 추가하시면 됩니다.
@@ -56,6 +61,10 @@ internal class Skill
             case 3:
                 SkillList.Add(new MoneyAttack());
                 SkillForSave.Add(SkillName.MoneyAttack);
+                break;
+            case 4:
+                SkillList.Add(new CounterAttack());
+                SkillForSave.Add(SkillName.CounterAttack);
                 break;
             default:
                 Console.WriteLine("이 번호의 스킬은 존재하지 않습니다!");
@@ -111,7 +120,6 @@ internal class Skill
 
     public void SkillUse(List<Monster> target, int idx, Player player, int damage, int skillIdx, bool critical)    // 스킬 사용 (idx에 유의)
     {
-        skillIdx -= 1;
         SkillList[skillIdx].Active(target, idx, player, damage, critical);
     }
 
@@ -136,6 +144,43 @@ internal class Skill
         }
         Console.WriteLine($"스킬 이름 : {Name} - 현재 쿨타임입니다! 남은 턴 {CoolTime}");
         Console.ResetColor();
+    }
+
+    public virtual void DefensiveSkillReady(Player player)
+    {
+    }
+
+    public virtual bool ConditionCheckMethod(Player player) // 사용이 가능한지 확인
+    {
+        return false;
+    }
+
+    public void CheckMissingSkills(Player player)
+    {
+        for (int i = 0; i <= player.Level; i++)
+        {
+            switch (i)
+            {
+                case 0:
+                    SkillForSave.Add(SkillName.DoubleAttack); // 더블 어택
+                    break;
+                case 2:
+                    SkillForSave.Add(SkillName.Slash); // 휩쓸기
+                    break;
+                case 3:
+                    SkillForSave.Add(SkillName.RevengeAttack); // 복수
+                    break;
+                case 5:
+                    SkillForSave.Add(SkillName.CounterAttack); // 반격
+                    break;
+                case 6:
+                    SkillForSave.Add(SkillName.MoneyAttack); // 동전 던지기
+                    break;
+                default:
+                    continue;
+            }
+        }
+        Console.WriteLine("업데이트해야할 스킬은 여기까지입니다!");
     }
 }
 
@@ -210,7 +255,9 @@ class RevengeAttack : Skill
     }
     public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
-        damage = (int)((damage * 0.5) + ((100 - player.Hp) * 0.5));
+        damage = (int)((damage * 0.5) + (((100 + player.BonusHp) - player.Hp) * 0.5));
+
+        if (critical) { damage *= 2; }  // 치명타 발동 시
 
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.WriteLine($"  {player.Name}이(가) 복수를 시전합니다!");
@@ -234,7 +281,20 @@ class MoneyAttack : Skill
         SkillDesc = "사용한 돈만큼 적들에게 공격을 가합니다! (적 선택 이후 취소 불가)\n       100원당 1데미지를 가합니다. (내림 판정)\n       1000원 이상의 금액을 던질 시 전체 공격으로 변합니다."; 
 
         ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
+
+        ConditionCheck = true;
     }
+
+    public override bool ConditionCheckMethod(Player player)
+    {
+        if (player.Gold < 100)
+        {
+            ConsoleUtility.PrintTextHighlights("", "스킬 사용에 필요한 최소 금액이 없습니다!");
+            return false;
+        }
+        else { return true; }
+    }
+
     public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
     {
         bool checkInt = false ;
@@ -247,7 +307,7 @@ class MoneyAttack : Skill
             Console.WriteLine();
             ConsoleUtility.PrintTextHighlights("사용하고자 하는 금액을 입력하세요. 최소 금액 ", "100", "원");
             Console.WriteLine();
-            ConsoleUtility.PrintTextHighlights("보유 금액 : ", $"{player.Gold}");
+            ConsoleUtility.PrintTextHighlights("    보유 금액 : ", $"{player.Gold}");
 
             checkInt = int.TryParse(Console.ReadLine(), out value);
             if (value > player.Gold) { ConsoleUtility.PrintTextHighlights("", "그 정도의 금액을 소지하고 있지 않습니다!"); Thread.Sleep(500); checkInt = false; }
@@ -287,5 +347,38 @@ class MoneyAttack : Skill
                 i.PrintMonsterChangeDescription(i.Hp, damage);
             }
         }
+    }
+}
+class CounterAttack : Skill
+{
+    public CounterAttack()
+    {
+        Name = "반격";
+        SkillDesc = "적의 공격을 무시하고 반격합니다!\n       반격 횟수당 쿨타임이 1턴씩 증가합니다.";
+
+        ConsoleUtility.PrintTextHighlights($"스킬을 획득했습니다! - ", $"{Name}");
+
+        DefensiveSkill = true;
+    }
+
+    public override void DefensiveSkillReady(Player player)
+    {
+        ConsoleUtility.PrintTextHighlights($"{player.Name}은 ", $"반격", "을 준비합니다!");
+        CoolTime += 1;  // 기본 쿨타임
+    }
+
+    public override void Active(List<Monster> targets, int idx, Player player, int damage, bool critical)
+    {
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"  {player.Name}의 반격!");
+        Console.ResetColor();
+
+        Console.WriteLine("");
+        player.PrintAttackDescription(targets[0], damage, critical);
+
+        Console.WriteLine("");
+        targets[0].PrintMonsterChangeDescription(targets[0].Hp, damage);
+
+        CoolTime += 1;  // 이렇게 되면 반격한 적당 하나씩 추가된다.
     }
 }

@@ -5,8 +5,11 @@
     public int Level { get; set; }
     public int Exp { get; set; }
     public int Atk { get; set; }
+    public int BonusAtk { get; set; }
     public int Def { get; set; }
+    public int BonusDef { get; set; }
     public int Hp { get; set; }
+    public int BonusHp { get; set; }
     public int Gold { get; set; }
     public int Potion { get; set; }
     public int MaxStage { get; set; }
@@ -27,22 +30,22 @@
     }
 
     // 물약 전용 오버로딩
-    public void PrintPlayerDescription(int bonusHp = 0)
+    public void PrintPlayerDescription(int bonusHp)
     {
         Console.WriteLine("[내정보]");
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name} ( {Job} )");
         ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString(), "", false);
-        ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString());
+        ConsoleUtility.PrintTextHighlights("/", (100 + BonusHp).ToString());
     }
 
     // BattleScene에서 player 정보 출력할 때 사용
-    public void PrintPlayerDescription(int bonusAtk = 0, int bonusDef = 0, int bonusHp = 0)
+    public void PrintPlayerDescription()
     {
         Console.WriteLine("[내정보]");
         ConsoleUtility.PrintTextHighlights("Lv.", Level.ToString(), $" {Name} ( {Job} )");
         ConsoleUtility.PrintTextHighlights("HP ", Hp.ToString(), "", false);
-        ConsoleUtility.PrintTextHighlights("/", (100 + bonusHp).ToString());
-        ConsoleUtility.PrintTextHighlights("공격력 : ", (Atk + bonusAtk).ToString(), " ", false); ConsoleUtility.PrintTextHighlights("방어력 : ", (Def + bonusDef).ToString());
+        ConsoleUtility.PrintTextHighlights("/", (100 + BonusHp).ToString());
+        ConsoleUtility.PrintTextHighlights("공격력 : ", (Atk + BonusAtk).ToString(), " ", false); ConsoleUtility.PrintTextHighlights("방어력 : ", (Def + BonusDef).ToString());
     }
 
     // BattleScene에서 player 정보 변화를 출력할 때 사용
@@ -141,6 +144,7 @@
             case 5:
                 Atk += 2;
                 Def += 2;
+                skills.SkillEarn(SkillName.CounterAttack); // 반격
                 break;
             case 6:
                 Atk += 2;
@@ -169,10 +173,10 @@
     // player.CheckHpError(inventory) <- 에러 예상 구역에 추가함
     public void CheckHpError(List<Item> inventory)
     {
-        int bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
-        if (Hp > 100 +  bonusHp)
+        BonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+        if (Hp > 100 +  BonusHp)
         {
-            Hp = 100 + bonusHp;
+            Hp = 100 + BonusHp;
         }
     }
 }

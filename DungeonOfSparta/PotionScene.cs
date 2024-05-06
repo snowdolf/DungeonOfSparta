@@ -16,10 +16,10 @@
         Console.Write("포션을 사용하면 체력을 30 회복할 수 있습니다. ");
         ConsoleUtility.PrintTextHighlights("(남은 포션 : ", player.Potion.ToString(), " )");
 
-        int bonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
+        player.BonusHp = inventory.Select(item => item.IsEquipped ? item.Hp : 0).Sum();
 
         Console.WriteLine("");
-        player.PrintPlayerDescription(bonusHp);
+        player.PrintPlayerDescription(0);
 
         Console.WriteLine("");
         Console.WriteLine("1. 사용하기");
@@ -36,9 +36,9 @@
                 if (player.Potion > 0)
                 {
                     player.Hp += 30;
-                    if (player.Hp > (100 + bonusHp))
+                    if (player.Hp > (100 + player.BonusHp))
                     {
-                        player.Hp = 100 + bonusHp;
+                        player.Hp = 100 + player.BonusHp;
                     }
                     player.Potion--;
                     PotionScene("회복을 완료했습니다.");
