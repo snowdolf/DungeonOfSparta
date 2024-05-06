@@ -145,14 +145,22 @@ public partial class GameManager
         }
         else if (questList[selectQuest].IsAccept == true && questList[selectQuest].IsCompleted == true)
         {
-            Console.WriteLine("1. 퀘스트 완료");
+            Console.WriteLine("※ 이미 보상아이템 소지 시 골드로 전환");
+            Console.WriteLine("1. 퀘스트 완료 ");
             Console.WriteLine("0. 나가기");
             switch (ConsoleUtility.PromptSceneChoice(0,1))
             {
                 case 1:
                     player.Gold += questList[selectQuest].RewardGold;
-                    storeInventory[questList[selectQuest].RewardItem].Purchase();
-                    inventory.Add(storeInventory[questList[selectQuest].RewardItem]);
+                    if (storeInventory[questList[selectQuest].RewardItem].IsPurchased == false)
+                    {
+                        storeInventory[questList[selectQuest].RewardItem].Purchase();
+                        inventory.Add(storeInventory[questList[selectQuest].RewardItem]);
+                    }
+                    else
+                    {
+                        player.Gold += storeInventory[questList[selectQuest].RewardItem].Price;
+                    }
                     questList[selectQuest].IsAccept = false;
                     QuestCurrectScene(selectQuest);
 
@@ -171,7 +179,7 @@ public partial class GameManager
         }
 
 
-        //Console.WriteLine(quest.MonsterKill);
+        
 
 
 
@@ -215,14 +223,5 @@ internal class Quest
 
     
 
-
-   
-    public void QuestReard(string rewardItem)
-    {
-        if(IsCompleted)
-        {
-            // 아이템 및 골드
-        }
-    }
 }
 
