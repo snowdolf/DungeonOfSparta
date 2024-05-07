@@ -96,11 +96,11 @@ __5. 보스몬스터__
 ## __🔍 기능 설명__
 __1. 게임 저장__
   - 원하는 객체를 json으로 직렬화하고, 반대로 역직렬화 하는 메서드를 제공해줘서 손쉽게 데이터를 저장 및 전송할 수 있었다.  
-`1)JsonConvert.SerializeObject(); //여기서 직렬화는 객체를 저장 및 전송 가능한 포맷으로 바꾸는 과정을 말한다`
-`2)JsonConvert.DeserializeObject(); //역질렬화는 반대의 과정, 특정 포맷의 데이터를 다시 객체로 바꾸는 과정을 말한다`
-`3)Directory.GetCurrentDirectory(); //json 파일을 저장하고 불러오기 위해 현재 실행중인 프로그램의 경로를 가져와야 한다`
+`1)JsonConvert.SerializeObject(); //여기서 직렬화는 객체를 저장 및 전송 가능한 포맷으로 바꾸는 과정을 말한다`  
+`2)JsonConvert.DeserializeObject(); //역질렬화는 반대의 과정, 특정 포맷의 데이터를 다시 객체로 바꾸는 과정을 말한다`  
+`3)Directory.GetCurrentDirectory(); //json 파일을 저장하고 불러오기 위해 현재 실행중인 프로그램의 경로를 가져와야 한다`  
 
 __2. 전투__
-- 스킬과 추가 된 보스몬스터로 전투사이클 변화
-   ![image](https://github.com/snowdolf/DungeonOfSparta/assets/79829083/e5395679-91ba-4e97-bd49-6022fd16060c)
+- 스킬과 추가 된 보스몬스터로 전투사이클 변화  
+   ![image](https://github.com/snowdolf/DungeonOfSparta/assets/79829083/e5395679-91ba-4e97-bd49-6022fd16060c)  
 
